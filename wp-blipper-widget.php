@@ -28,6 +28,7 @@ defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
 use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
+use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
 
 // Register the WP Blipper widget
 function register_wp_blipper_widget() {
@@ -45,6 +46,12 @@ class WP_Blipper_Widget extends WP_Widget {
    */
   private $default_setting_values = array (
     'title'         => 'My latest blip',
+    'username'      => 'Your Polaroid|Blipfoto username',
+    'client-id'     => 'Your Polaroid|Blipfoto client ID',
+    'client-secret' => 'Your Polaroid|Blipfoto client secret',
+    'access-token'  => 'Your Polaroid|Blipfoto access token'
+  );
+  private $placeholder_setting_values = array (
     'username'      => 'Your Polaroid|Blipfoto username',
     'client-id'     => 'Your Polaroid|Blipfoto client ID',
     'client-secret' => 'Your Polaroid|Blipfoto client secret',
@@ -115,8 +122,9 @@ class WP_Blipper_Widget extends WP_Widget {
       echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
     }
 
-    $this->wp_blipper_create_blipfoto_client( $instance );
-    $this->wp_blipper_display_blip( $instance );
+    if ( $this->wp_blipper_create_blipfoto_client( $instance ) ) {
+      $this->wp_blipper_display_blip( $instance );
+    }
 
     echo $args['after_widget'];
 
@@ -150,7 +158,8 @@ class WP_Blipper_Widget extends WP_Widget {
         id="<?php echo $this->get_field_id( 'username' ) ?>" 
         name="<?php echo $this->get_field_name( 'username' ); ?>" 
         type="text" 
-        value="<?php echo esc_attr( $settings['username'] ); ?>">
+        value="<?php echo esc_attr( $settings['username'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['username']; ?>">
     </p>
     <p><strong>Polaroid|Blipfoto OAuth settings</strong></p>
     <p>You need to authorise access to your Polaroid|Blipfoto account to use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  The instructions below tell you how to authorise access and how to revoke access.</p>
@@ -175,7 +184,8 @@ class WP_Blipper_Widget extends WP_Widget {
         id="<?php echo $this->get_field_id( 'client-id' ) ?>" 
         name="<?php echo $this->get_field_name( 'client-id' ); ?>" 
         type="text" 
-        value="<?php echo esc_attr( $settings['client-id'] ); ?>">
+        value="<?php echo esc_attr( $settings['client-id'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['client-id']; ?>">
     </p>
     <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'client-secret' ); ?>"><?php _e( 'Polaroid|Blipfoto Client Secret' ); ?></label></em></p>
     <p>
@@ -184,7 +194,8 @@ class WP_Blipper_Widget extends WP_Widget {
         id="<?php echo $this->get_field_id( 'client-secret' ) ?>" 
         name="<?php echo $this->get_field_name( 'client-secret' ); ?>" 
         type="text" 
-        value="<?php echo esc_attr( $settings['client-secret'] ); ?>">
+        value="<?php echo esc_attr( $settings['client-secret'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['client-secret']; ?>">
     </p>
     <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'access-token' ); ?>"><?php _e( 'Polaroid|Blipfoto Access Token' ); ?></label></em></p>
     <p>
@@ -193,7 +204,8 @@ class WP_Blipper_Widget extends WP_Widget {
         id="<?php echo $this->get_field_id( 'access-token' ) ?>" 
         name="<?php echo $this->get_field_name( 'access-token' ); ?>" 
         type="text" 
-        value="<?php echo esc_attr( $settings['access-token'] ); ?>">
+        value="<?php echo esc_attr( $settings['access-token'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['access-token']; ?>">
     </p>
     <p><em>How to revoke access to your Polaroid|Blipfoto account</em></p>
     <p>It's simple to revoke access.  We hope you don't want to do this, but if you do, the instructions are laid out below.</p>
@@ -311,12 +323,19 @@ class WP_Blipper_Widget extends WP_Widget {
    */
   private function wp_blipper_get_display_values( $instance ) {
 
-    return array(
+/*    return array(
       'title'         => __( $instance['title'], 'text_domain' ),
       'username'      => ! empty( $instance['username'])      ? __( $instance['username'], 'text_domain' )       : __( $this->default_setting_values['username'], 'text_domain' ),
       'client-id'     => ! empty( $instance['client-id'])     ? __( $instance['client-id'], 'text_domain' )      : __( $this->default_setting_values['client-id'], 'text_domain' ),
       'client-secret' => ! empty( $instance['client-secret']) ? __( $instance['client-secret'], 'text_domain' )  : __( $this->default_setting_values['client-secret'], 'text_domain' ),
       'access-token'  => ! empty( $instance['access-token'])  ? __( $instance['access-token'], 'text_domain' )   : __( $this->default_setting_values['access-token'], 'text_domain' ),
+    );*/
+    return array(
+      'title'         => ! empty( $instance['title'])         ? __( $instance['title'], 'text_domain' )         : __( $this->default_setting_values['title'], 'text_domain' ),
+      'username'      => ! empty( $instance['username'])      ? __( $instance['username'], 'text_domain' )      : __( '', 'text_domain' ),
+      'client-id'     => ! empty( $instance['client-id'])     ? __( $instance['client-id'], 'text_domain' )     : __( '', 'text_domain' ),
+      'client-secret' => ! empty( $instance['client-secret']) ? __( $instance['client-secret'], 'text_domain' ) : __( '', 'text_domain' ),
+      'access-token'  => ! empty( $instance['access-token'])  ? __( $instance['access-token'], 'text_domain' )  : __( '', 'text_domain' ),
     );
 
   }
@@ -381,17 +400,28 @@ class WP_Blipper_Widget extends WP_Widget {
    */
   private function wp_blipper_create_blipfoto_client( $instance ) {
 
+    $return_value = false;
     // Create Polaroid|Blipfoto client if it hasn't already been done yet; otherwise just change the settings.
     if ( null == $this->client ) {
-      $this->client = new wpbw_Client (
-         $instance['client-id'],
-         $instance['client-secret'],
-         $instance['access-token']
-       );
+      try {
+        $this->client = new wpbw_Client (
+           $instance['client-id'],
+           $instance['client-secret'],
+           $instance['access-token']
+         );
+        $return_value = true;
+      } catch ( wpbw_ApiResponseException $e ) {
+        echo '<p>Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
+        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+      } catch ( ErrorException $e ) {
+        echo '<p>Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
+        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+      } catch ( Exception $e ) {
+        echo '<p>Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
+        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+      }
     }
-    if ( null == $this->client ) {
-      echo '<p class="fatwide">You need to make sure you have added the widget to a widget set up a Polaroid|Blipfoto app on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.';
-    }
+    return $return_value;
 
   } 
 
@@ -405,55 +435,77 @@ class WP_Blipper_Widget extends WP_Widget {
   private function wp_blipper_display_blip( $instance ) {
 
     $user_profile = null;
-    $user_profile = $this->client->get(
-      'user/profile',
-        array(
-          'return_details' => 0
-        )
-    );
-    $error = $user_profile->error();
-    if ( null != $error ) {
-      echo '<p class="fatwide">Polaroid|Blipfoto error ' . $error['code'] . ': ' . $error['message'] . '</p>';
-      echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-    } else {
-      $user = $user_profile->data('user');
-        if ( $user['username'] != $instance['username'] ) {
-        echo '<p class="fatwide">Usernames don\'t match</p>';
-      } else {
-        $journal = $this->client->get(
-          'entries/journal',
+    $continue = false;
+    try {
+      $user_profile = $this->client->get(
+        'user/profile',
           array(
-            'page_index'  => 0,
-            'page_size'   => 1
+            'return_details' => 0
           )
-        );
-        $error = $journal->error();
-        if ( null != $error ) {
-          echo '<p class="fatwide">Polaroid|Blipfoto error ' . $error['code'] . ': ' . $error['message'] . '</p>';
+      );
+      $continue = true;
+    } catch ( wpbw_ApiResponseException $e ) {
+      echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+      echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+    }
+    if ( $continue ) {
+      $continue = false;
+      try {
+        $user = $user_profile->data('user');
+        $continue = $user['username'] == $instance['username'];
+        if ( !$continue ) {
+          echo '<p class="fatwide">Usernames don\'t match.</p>';
           echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-        } else {
-          $blips = $journal->data( 'entries' );
-          // Assuming any blips have been retrieved, there should only be one.
-          if ( null == $blips || 0 == count( $blips ) ) {
-            echo '<p class="fatwide">Make sure you have some entries on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a> to retrieve.</p>';
-          } else {
-            $blip = $blips[0];
-            $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
-            echo '
-              <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
-              <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
-                  <img 
-                  class="fatwide" 
-                  src="' . $blip['image_url'] . '" 
-                  // alt="" 
-                  // height="" 
-                  // width="">
-                <figcaption style="padding:5px">
-                  ' . $date . '<br>' . $blip['title'] . '
-                </figcaption>
-                </figure>
-              </a>
-            ';
+        }
+      } catch ( ErrorException $e ) {
+        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+      }
+      if ( $continue ) {
+        $continue = false;
+        try {
+          $journal = $this->client->get(
+            'entries/journal',
+            array(
+              'page_index'  => 0,
+              'page_size'   => 1
+            )
+          );
+          $continue = true;
+        } catch ( ErrorException $e ) {
+          echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+          echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        }
+        if ( $continue ) {
+          $continue = false;
+          try {
+            $blips = $journal->data( 'entries' );
+            // Assuming any blips have been retrieved, there should only be one.
+            if ( null == $blips || 0 == count( $blips ) ) {
+              echo '<p class="fatwide">Make sure you have some entries on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a> to retrieve.</p>';
+            } else {
+              $blip = $blips[0];
+              $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
+              echo '
+                <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
+                <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
+                    <img 
+                    class="fatwide" 
+                    src="' . $blip['image_url'] . '" 
+                    // alt="" 
+                    // height="" 
+                    // width="">
+                  <figcaption style="padding:5px">
+                    ' . $date . '<br>' . $blip['title'] . '
+                  </figcaption>
+                  </figure>
+                </a>
+              ';
+            }
+            $continue = true;
+          } catch ( ErrorException $e ) {
+            echo '<p class="fatwide">Polaroid|Blipfoto error ' . $error['code'] . ': ' . $error['message'] . '</p>';
+            echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
           }
         }
       }
