@@ -485,19 +485,39 @@ class WP_Blipper_Widget extends WP_Widget {
               echo '<p class="fatwide">Make sure you have some entries on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a> to retrieve.</p>';
             } else {
               $blip = $blips[0];
+              $details = $this->client->get(
+                'entry',
+                array(
+                  'entry_id'          => $blip['entry_id_str'],
+                  'return_details'    => 1,
+                  'return_image_urls' => 1
+                )
+              );
+              $image_url = null;
+              if ( null !== $details->data( 'image_urls.original' ) ) {
+                $image_url = $details->data( 'image_urls.original' );
+              } else if ( null !== $details->data( 'image_urls.hires' ) ) {
+                $image_url = $details->data( 'image_urls.hires' );
+              } else if ( null !== $details->data( 'image_urls.stdres' ) ) {
+                $image_url = $details->data( 'image_urls.stdres' );
+              } else {
+                $image_url = $details->data( 'image_urls.lores' );
+              }
+
               $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
               echo '
+                <p class="fatwide"><strong>' . $details->data( 'details.journal_title' ) . '</strong></p>
                 <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
-                <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
-                    <img 
-                    class="fatwide" 
-                    src="' . $blip['image_url'] . '" 
-                    // alt="" 
-                    // height="" 
-                    // width="">
-                  <figcaption style="padding:5px">
-                    ' . $date . '<br>' . $blip['title'] . '
-                  </figcaption>
+                  <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
+                      <img 
+                      class="fatwide" 
+                      src="' . $image_url . '" 
+                      // alt="" 
+                      // height="" 
+                      // width="">
+                    <figcaption style="padding:5px">
+                      ' . $date . '<br>' . $blip['title'] . '
+                    </figcaption>
                   </figure>
                 </a>
               ';
