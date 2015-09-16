@@ -102,7 +102,6 @@ class WP_Blipper_Widget extends WP_Widget {
     }
 
     if ( $this->wp_blipper_create_blipfoto_client( $instance ) ) {
-      echo '<p>Created client.</p>';
       $this->wp_blipper_display_blip( $instance );
     }
 
@@ -398,29 +397,19 @@ class WP_Blipper_Widget extends WP_Widget {
    */
   private function wp_blipper_display_blip( $instance ) {
 
-    echo '<p>Going to display the blip.</p>';
     $user_profile = null;
     $continue = false;
     try {
-      echo '<p>Going to get the user data.</p><pre>CLIENT: ';
-      var_export($this->client);
-      echo '</pre>';
       $user_profile = $this->client->get( 
         'user/profile',
         array (
           'return_details'  => 0
         )
       );
-      echo '<pre>USER PROFILE: ';
-      var_export($user_profile);
-      echo '</pre>';
       $user_settings = $this->client->get( 
         'user/settings'
       );
-      echo '<pre>USER SETTINGS: ';
-      var_export($user_settings);
-      echo '</pre>';
-      echo '<p>Got the user data.</p>';
+
       if ( $user_profile->error() ) {
         echo '<p class="fatwide">' . $user_profile->error() . 'Can\'t connect to Polaroid|Blipfoto.  Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
       } else {
@@ -505,7 +494,6 @@ class WP_Blipper_Widget extends WP_Widget {
 
             $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
             echo '
-              <p class="fatwide"><strong>' . $details->data( 'details.journal_title' ) . '</strong></p>
               <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
                 <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
                     <img 
@@ -519,6 +507,7 @@ class WP_Blipper_Widget extends WP_Widget {
                   </figcaption>
                 </figure>
               </a>
+              <p class="fatwide" style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a> on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a>.</p>
             ';
           }
         }
