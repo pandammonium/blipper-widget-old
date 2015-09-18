@@ -26,6 +26,10 @@
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
+// Switch on debugging
+error_reporting(-1);
+ini_set('display_errors', 'On');
+
 use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
 use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
 
