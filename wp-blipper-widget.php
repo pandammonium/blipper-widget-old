@@ -26,12 +26,13 @@
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-// Switch on debugging
-error_reporting(-1);
-ini_set('display_errors', 'On');
+// // Switch on debugging
+// error_reporting(-1);
+// ini_set('display_errors', 'On');
 
 use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
 use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
+use wpbw_Blipfoto\wpbw_Exceptions\wpbw_InvalidResponseException;
 
 // Register the WP Blipper widget
 function register_wp_blipper_widget() {
@@ -40,8 +41,8 @@ function register_wp_blipper_widget() {
 add_action( 'widgets_init', 'register_wp_blipper_widget' ); // function to load WP Blipper
 
 // Error handling
-function wp_blipper_exception( $exception ) {
-  echo '<p class="fatwide">Error: ' . $exception->getMessage() . '</p>';
+function wp_blipper_exception( $e ) {
+  echo '<p class="fatwide">An unexpected error has occurred.  ' . $e->getMessage() . '</p>';
 }
 set_exception_handler('wp_blipper_exception');
 
@@ -302,13 +303,13 @@ class WP_Blipper_Widget extends WP_Widget {
         $return_value = true;
       } catch ( wpbw_ApiResponseException $e ) {
         echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
       } catch ( ErrorException $e ) {
         echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
       } catch ( Exception $e ) {
         echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
       }
     } else {
       echo '<p class="fatwide">You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
@@ -329,98 +330,145 @@ class WP_Blipper_Widget extends WP_Widget {
     $user_profile = null;
     $continue = false;
     try {
-      $user_profile = $this->client->get( 
-        'user/profile',
-        array (
-          'return_details'  => 0
-        )
-      );
-      $user_settings = $this->client->get( 
-        'user/settings'
-      );
-
+      $user_profile = $this->client->get( 'user/profile' );
       if ( $user_profile->error() ) {
-        echo '<p class="fatwide">' . $user_profile->error() . 'Can\'t connect to Polaroid|Blipfoto.  Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        throw new wpbw_ApiResponseException( $user_profile->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
       } else {
         $continue = true;
       }
     } catch ( wpbw_ApiResponseException $e ) {
       echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
-      echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-    } catch ( ErrorException $e ) {
-      echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-      echo '<p class="fatwide" class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-    } catch ( Exception $e ) {
-      echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-      echo '<p class="fatwide" class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+    }
+    if ( $continue ) {
+      $continue = false;
+      try {
+        $user_settings = $this->client->get( 'user/settings' );
+        if ( $user_settings->error() ) {
+          throw new wpbw_ApiResponseException( $user_settings->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
+        } else {
+          $continue = true;
+        }
+      } catch ( wpbw_ApiResponseException $e ) {
+        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+      }
     }
     if ( $continue ) {
       $continue = false;
       try {
         $user = $user_profile->data('user');
-      } catch ( ErrorException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-      }
-
-      $username = $user_settings->data( 'username' );
-      $continue = $username == $instance['username'] ? $username == $user['username'] : false;
-      if ( !$continue ) {
-        echo '<p class="fatwide">Usernames don\'t match (You entered: ' . $instance['username'] . '; I got: ' . $username . ').</p>';
-        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-      } else {
-        $continue = false;
-        try {
-          $journal = $this->client->get(
-            'entries/journal',
-            array(
-              'page_index'  => 0,
-              'page_size'   => 1
-            )
-          );
+        if ( null == $user ) {
+          throw new wpbw_ApiResponseException( 'Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.');
+        } else {
           $continue = true;
+        }
+      } catch ( wpbw_ApiResponseException $e ) {
+        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+      }
+      if ( $continue ) {
+        $username = $user_settings->data( 'username' );
+        try {
+          $continue = $username == $instance['username'] ? $username == $user['username'] : false;
+          if ( !$continue ) {
+            throw new ErrorException( 'Usernames don\'t match.  You entered: <i>' . $instance['username'] . '</i>; I got: <i>' . $username . '</i>.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
+          }
         } catch ( ErrorException $e ) {
-          echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
-          echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+          echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
+        }
+        if ( $continue ) {
+          $continue = false;
+          try {
+            // A page index of zero gives the most recent page of blips.
+            // A page size of one means there will be only one blip on that page.
+            // Together, these ensure that the most recent blip is obtained — which is exactly what we want to display.
+            $journal = $this->client->get(
+              'entries/journal',
+              array(
+                'page_index'  => 0,
+                'page_size'   => 1
+              )
+            );
+            if ( $journal->error() ) {
+              throw new wpbw_ApiResponseException( $journal->error() . '  Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
+            } else {
+              $continue = true;
+            }
+          } catch ( wpbw_ApiResponseException $e ) {
+            echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+          }
         }
         if ( $continue ) {
           $continue = false;
           try {
             $blips = $journal->data( 'entries' );
-          } catch ( wpbw_ApiResponseException $e ) {
-            echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
-            echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+            if ( null === $blips ) {
+              throw new ErrorException( 'Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
+            } else {
+              $continue = true;
+            }
           } catch ( ErrorException $e ) {
-            echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-            echo '<p class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-          } catch ( Exception $e ) {
-            echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-            echo '<p class="fatwide" class="fatwide">Please check your Polaroid|Blipfoto settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+            echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
           }
           // Assuming any blips have been retrieved, there should only be one.
-          if ( null == $blips || 0 == count( $blips ) ) {
-            echo '<p class="fatwide">Make sure you have some entries on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a> to retrieve.</p>';
-          } else {
-            $blip = $blips[0];
-            $details = $this->client->get(
-              'entry',
-              array(
-                'entry_id'          => $blip['entry_id_str'],
-                'return_details'    => 1,
-                'return_image_urls' => 1
-              )
-            );
-            $image_url = null;
-            if ( null !== $details->data( 'image_urls.original' ) ) {
-              $image_url = $details->data( 'image_urls.original' );
-            } else if ( null !== $details->data( 'image_urls.hires' ) ) {
-              $image_url = $details->data( 'image_urls.hires' );
-            } else if ( null !== $details->data( 'image_urls.stdres' ) ) {
-              $image_url = $details->data( 'image_urls.stdres' );
-            } else {
-              $image_url = $details->data( 'image_urls.lores' );
+          if ( $continue ) {
+            $continue = false;
+            try {
+              if ( 0 == count( $blips ) ) {
+                throw new ErrorException( 'No blips found.  Do you have <a href="https://www.polaroidblipfoto.com/' . $username . '" rel="nofollow">any Polaroid|Blipfoto entries</a>?');
+              } else {
+                $continue = true;
+              }
+            } catch ( ErrorException $e ) {
+            echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
             }
-
+          }
+          if ( $continue ) {
+            $continue = false;
+            $blip = $blips[0];
+            try {
+              $details = $this->client->get(
+                'entry',
+                array(
+                  'entry_id'          => $blip['entry_id_str'],
+                  'return_details'    => 1,
+                  'return_image_urls' => 1
+                )
+              );
+              if ( $details->error() ) {
+                throw new wpbw_ApiResponseException( $details->error() . '  Can\'t get the blip details.' );
+             } else {
+               $continue = true;
+             }
+            } catch ( wpbw_ApiResponseException $e ) {
+              echo '<p class="fatwide">Polaroid| Blipfoto error.  ' . $e->getMessage() . '</p>';
+            }
+          }
+          if ( $continue ) {
+            $continue = false;
+            // Polaroid|Blipfoto has different quality images, each with its own
+            // URL.  Access is currently limited to standard, but I've
+            // optimistically allowed for higher quality images to be selected
+            // if they're present.  The lowest quality image is obtained if the
+            // standard image isn't available.
+            $image_url = null;
+            try {
+              if ( null !== $details->data( 'image_urls.original' ) ) {
+                $image_url = $details->data( 'image_urls.original' );
+              } else if ( null !== $details->data( 'image_urls.hires' ) ) {
+                $image_url = $details->data( 'image_urls.hires' );
+              } else if ( null !== $details->data( 'image_urls.stdres' ) ) {
+                $image_url = $details->data( 'image_urls.stdres' );
+              } else if ( null !== $details->data( 'image_urls.lores' ) ) {
+                $image_url = $details->data( 'image_urls.lores' );
+              } else {
+                throw new ErrorException(' Unable to get URL of image.');
+              }
+            } catch ( ErrorException $e ) {
+              echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';              
+            }
+            $continue = null != $image_url;
+          }
+          if ( $continue ) {
+            $continue = false;
             $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
             echo '
               <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
