@@ -79,7 +79,7 @@ class WP_Blipper_Widget extends WP_Widget {
   public function __construct() {
 
     $params = array(
-      'description' => __( 'The latest blip from your Polaroid|Blipfoto account.  Thank you for installing this widget!', 'text_domain' ),
+      'description' => __( 'The latest blip from your Polaroid|Blipfoto account.', 'text_domain' ),
       'name'        => __( 'WP Blipper Widget', 'wp-blipper-widget' ),
     );
     parent::__construct( 'wp_blipper_widget', 'WP Blipper Widget', $params );
@@ -118,82 +118,7 @@ class WP_Blipper_Widget extends WP_Widget {
   public function form( $instance ) {
 
     $settings = $this->wp_blipper_get_display_values( $instance );
-
-    ?>
-    <p><strong><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title' ); ?></label></strong></p>
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'title' ) ?>" 
-        name="<?php echo $this->get_field_name( 'title' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['title'] ); ?>">
-    </p>
-    <p><strong><label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Polaroid|Blipfoto username' ); ?></label></strong></p>
-    <p class="widefat">You need to provide your Polaroid|Blipfoto username.  This is the name you use to log in to Polaroid|Blipfoto.</p>
-    <p class="widefat">If you don't have a Polaroid|Blipfoto account, then you will need to <a href="https://www.polaroidblipfoto.com/account/signup" rel="nofollow">sign up to Polaroid|Blipfoto</a> to continue.</p>
-    <p class="widefat">
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'username' ) ?>" 
-        name="<?php echo $this->get_field_name( 'username' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['username'] ); ?>"
-        placeholder="<?php echo $this->placeholder_setting_values['username']; ?>">
-    </p>
-    <p><strong>Polaroid|Blipfoto OAuth 2.0 settings</strong></p>
-    <p>You need to authorise access to your Polaroid|Blipfoto account to use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  The instructions below tell you how to authorise access and how to revoke access.</p>
-    <p><em>How to authorise your Polaroid|Blipfoto account</em></p>
-    <p>To allow WordPress to access your Polaroid|Blipfoto account, you need to carry out a few simple steps.</p>
-    <ol>
-      <li>Open the <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">the Polaroid|Blipfoto apps page</a> in a new tab or window.</li>
-      <li>Press the <i>Create new app</i> button.</li>
-      <li>In the <i>Name</i> field, give your app any name you like, for example, <i>My super-duper app</i>.</li>
-      <li>The <i>Type</i> field should be set to <i>Web application</i>.</li>
-      <li>Optionally, describe your app in the <i>Description</i> field, so you know what it does.</li>
-      <li>In the <i>Website</i> field, enter the URL of your website (most likely <code><?php echo home_url(); ?></code>).</li>
-      <li>Leave the <i>Redirect URI</i> field blank.</li>
-      <li>Indicate that you agree to the <i>Developer rules</i>.</li>
-      <li>Press the <i>Create a new app</i> button.</li>
-      <li>You should now see your <i>Client ID</i>, <i>Client Secret</i> and <i>Access Token</i>.  Copy and paste these into the corresponding fields below.</li>
-    </ol>
-    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'client-id' ); ?>"><?php _e( 'Polaroid|Blipfoto Client ID' ); ?></label></em></p>
-    <p>
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'client-id' ) ?>" 
-        name="<?php echo $this->get_field_name( 'client-id' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['client-id'] ); ?>"
-        placeholder="<?php echo $this->placeholder_setting_values['client-id']; ?>">
-    </p>
-    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'client-secret' ); ?>"><?php _e( 'Polaroid|Blipfoto Client Secret' ); ?></label></em></p>
-    <p>
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'client-secret' ) ?>" 
-        name="<?php echo $this->get_field_name( 'client-secret' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['client-secret'] ); ?>"
-        placeholder="<?php echo $this->placeholder_setting_values['client-secret']; ?>">
-    </p>
-    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'access-token' ); ?>"><?php _e( 'Polaroid|Blipfoto Access Token' ); ?></label></em></p>
-    <p>
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'access-token' ) ?>" 
-        name="<?php echo $this->get_field_name( 'access-token' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['access-token'] ); ?>"
-        placeholder="<?php echo $this->placeholder_setting_values['access-token']; ?>">
-    </p>
-    <p><em>How to revoke access to your Polaroid|Blipfoto account</em></p>
-    <p>It's simple to revoke access.  We hope you don't want to do this, but if you do, the instructions are laid out below.</p>
-    <ol>
-      <li>Go to <a href="https://www.polaroidblipfoto.com/settings/apps" rel="nofollow">your Polaroid|Blipfoto app settings</a>.</li>
-      <li>Select the app whose access you want to revoke (the one you created above).</li>
-      <li>Press the <i>Save changes</i> button.</li>
-    </ol>
-    <?php
+    $this->display_form( $settings );
 
   }
 
@@ -513,6 +438,86 @@ class WP_Blipper_Widget extends WP_Widget {
         }
       }
     }
+  }
+
+  private function display_form( $settings ) {
+
+    ?>
+    <p><strong><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title' ); ?></label></strong></p>
+      <input 
+        class="widefat" 
+        id="<?php echo $this->get_field_id( 'title' ) ?>" 
+        name="<?php echo $this->get_field_name( 'title' ); ?>" 
+        type="text" 
+        value="<?php echo esc_attr( $settings['title'] ); ?>">
+    </p>
+    <p><strong><label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Polaroid|Blipfoto username' ); ?></label></strong></p>
+    <p class="widefat">You need to provide your Polaroid|Blipfoto username.  This is the name you use to log in to Polaroid|Blipfoto.</p>
+    <p class="widefat">If you don't have a Polaroid|Blipfoto account, then you will need to <a href="https://www.polaroidblipfoto.com/account/signup" rel="nofollow">sign up to Polaroid|Blipfoto</a> to continue.</p>
+    <p class="widefat">
+      <input 
+        class="widefat" 
+        id="<?php echo $this->get_field_id( 'username' ) ?>" 
+        name="<?php echo $this->get_field_name( 'username' ); ?>" 
+        type="text" 
+        value="<?php echo esc_attr( $settings['username'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['username']; ?>">
+    </p>
+    <p><strong>Polaroid|Blipfoto OAuth 2.0 settings</strong></p>
+    <p>You need to authorise access to your Polaroid|Blipfoto account to use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  The instructions below tell you how to authorise access and how to revoke access.</p>
+    <p><em>How to authorise your Polaroid|Blipfoto account</em></p>
+    <p>To allow WordPress to access your Polaroid|Blipfoto account, you need to carry out a few simple steps.</p>
+    <ol>
+      <li>Open the <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">the Polaroid|Blipfoto apps page</a> in a new tab or window.</li>
+      <li>Press the <i>Create new app</i> button.</li>
+      <li>In the <i>Name</i> field, give your app any name you like, for example, <i>My super-duper app</i>.</li>
+      <li>The <i>Type</i> field should be set to <i>Web application</i>.</li>
+      <li>Optionally, describe your app in the <i>Description</i> field, so you know what it does.</li>
+      <li>In the <i>Website</i> field, enter the URL of your website (most likely <code><?php echo home_url(); ?></code>).</li>
+      <li>Leave the <i>Redirect URI</i> field blank.</li>
+      <li>Indicate that you agree to the <i>Developer rules</i>.</li>
+      <li>Press the <i>Create a new app</i> button.</li>
+      <li>You should now see your <i>Client ID</i>, <i>Client Secret</i> and <i>Access Token</i>.  Copy and paste these into the corresponding fields below.</li>
+    </ol>
+    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'client-id' ); ?>"><?php _e( 'Polaroid|Blipfoto Client ID' ); ?></label></em></p>
+    <p>
+      <input 
+        class="widefat" 
+        id="<?php echo $this->get_field_id( 'client-id' ) ?>" 
+        name="<?php echo $this->get_field_name( 'client-id' ); ?>" 
+        type="text" 
+        value="<?php echo esc_attr( $settings['client-id'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['client-id']; ?>">
+    </p>
+    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'client-secret' ); ?>"><?php _e( 'Polaroid|Blipfoto Client Secret' ); ?></label></em></p>
+    <p>
+      <input 
+        class="widefat" 
+        id="<?php echo $this->get_field_id( 'client-secret' ) ?>" 
+        name="<?php echo $this->get_field_name( 'client-secret' ); ?>" 
+        type="text" 
+        value="<?php echo esc_attr( $settings['client-secret'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['client-secret']; ?>">
+    </p>
+    <p class="widefat"><em><label for="<?php echo $this->get_field_id( 'access-token' ); ?>"><?php _e( 'Polaroid|Blipfoto Access Token' ); ?></label></em></p>
+    <p>
+      <input 
+        class="widefat" 
+        id="<?php echo $this->get_field_id( 'access-token' ) ?>" 
+        name="<?php echo $this->get_field_name( 'access-token' ); ?>" 
+        type="text" 
+        value="<?php echo esc_attr( $settings['access-token'] ); ?>"
+        placeholder="<?php echo $this->placeholder_setting_values['access-token']; ?>">
+    </p>
+    <p><em>How to revoke access to your Polaroid|Blipfoto account</em></p>
+    <p>It's simple to revoke access.  We hope you don't want to do this, but if you do, the instructions are laid out below.</p>
+    <ol>
+      <li>Go to <a href="https://www.polaroidblipfoto.com/settings/apps" rel="nofollow">your Polaroid|Blipfoto app settings</a>.</li>
+      <li>Select the app whose access you want to revoke (the one you created above).</li>
+      <li>Press the <i>Save changes</i> button.</li>
+    </ol>
+    <?php
+
   }
 
 }
