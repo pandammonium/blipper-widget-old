@@ -1,9 +1,6 @@
 <?php
 
 /**
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the widget, and renders the back- and front-ends of the widget.
  *
  * @link              http://pandammonium.org/dev/wp-blipper-widget/
  * @since             0.0.1
@@ -11,24 +8,20 @@
  *
  * @wordpress-plugin
  * Plugin Name:       WP Blipper Widget
- * Plugin URI:        http://pandammonium.org/dev/wp-blipper/
+ * Plugin URI:        http://pandammonium.org/dev/wp-blipper-widget/
  * Description:       Displays the latest entry on Polaroid|Blipfoto by a given user in a widget.
  * Version:           0.0.1
  * Author:            Caity Ross
  * Author URI:        http://pandammonium.org/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       wp-blipper
+ * Text Domain:       wp-blipper-widget
  * Domain Path:       /languages
  */
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
-
-// // Switch on debugging
-// error_reporting(-1);
-// ini_set('display_errors', 'On');
 
 use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
 use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
@@ -42,9 +35,10 @@ add_action( 'widgets_init', 'register_wp_blipper_widget' ); // function to load 
 
 // Error handling
 function wp_blipper_exception( $e ) {
-  echo '<p class="fatwide">An unexpected error has occurred.  ' . $e->getMessage() . '</p>';
+  echo '<p class="fatwide">An unexpected error has occurred.  ' . $e->getMessage() . '  Please try again later.</p>';
 }
 set_exception_handler('wp_blipper_exception');
+
 
 class WP_Blipper_Widget extends WP_Widget {
 
@@ -89,7 +83,11 @@ class WP_Blipper_Widget extends WP_Widget {
     );
     parent::__construct( 'wp_blipper_widget', 'WP Blipper Widget', $params );
 
-    $this->load_dependencies();
+    if ( is_active_widget( false, false, $this->id_base, true ) ){
+        $this->load_dependencies();
+
+    }
+
   }
 
   /**
@@ -300,19 +298,16 @@ class WP_Blipper_Widget extends WP_Widget {
           $instance['client-secret'],
           $instance['access-token']
         );
-        $return_value = true;
+        if ( $this->client->error() ) {
+          throw new wpbw_ApiResponseException( %this->client->error() . 'Can\'t connect to Polaroid|Blipfoto.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>' );
+        } else {
+          $return_value = true;
+        }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-      } catch ( ErrorException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
-      } catch ( Exception $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error ' . $e->getMessage() . '</p>';
-        echo '<p class="fatwide">Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage();
       }
     } else {
-      echo '<p class="fatwide">You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
+      echo '<p class="fatwide">You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.</p>';
     }
     return $return_value;
 
@@ -332,7 +327,7 @@ class WP_Blipper_Widget extends WP_Widget {
     try {
       $user_profile = $this->client->get( 'user/profile' );
       if ( $user_profile->error() ) {
-        throw new wpbw_ApiResponseException( $user_profile->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
+        throw new wpbw_ApiResponseException( $user_profile->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
       } else {
         $continue = true;
       }
@@ -344,7 +339,7 @@ class WP_Blipper_Widget extends WP_Widget {
       try {
         $user_settings = $this->client->get( 'user/settings' );
         if ( $user_settings->error() ) {
-          throw new wpbw_ApiResponseException( $user_settings->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
+          throw new wpbw_ApiResponseException( $user_settings->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
         } else {
           $continue = true;
         }
@@ -357,7 +352,7 @@ class WP_Blipper_Widget extends WP_Widget {
       try {
         $user = $user_profile->data('user');
         if ( null == $user ) {
-          throw new wpbw_ApiResponseException( 'Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.');
+          throw new wpbw_ApiResponseException( 'Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.');
         } else {
           $continue = true;
         }
@@ -369,7 +364,7 @@ class WP_Blipper_Widget extends WP_Widget {
         try {
           $continue = $username == $instance['username'] ? $username == $user['username'] : false;
           if ( !$continue ) {
-            throw new ErrorException( 'Usernames don\'t match.  You entered: <i>' . $instance['username'] . '</i>; I got: <i>' . $username . '</i>.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
+            throw new ErrorException( 'Usernames don\'t match.  You entered: <i>' . $instance['username'] . '</i>; I got: <i>' . $username . '</i>.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue.' );
           }
         } catch ( ErrorException $e ) {
           echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
@@ -388,7 +383,7 @@ class WP_Blipper_Widget extends WP_Widget {
               )
             );
             if ( $journal->error() ) {
-              throw new wpbw_ApiResponseException( $journal->error() . '  Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
+              throw new wpbw_ApiResponseException( $journal->error() . '  Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
             } else {
               $continue = true;
             }
@@ -401,7 +396,7 @@ class WP_Blipper_Widget extends WP_Widget {
           try {
             $blips = $journal->data( 'entries' );
             if ( null === $blips ) {
-              throw new ErrorException( 'Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url(null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
+              throw new ErrorException( 'Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'widgets.php') ) . '">the widgets page</a> to continue or try again later.');
             } else {
               $continue = true;
             }
@@ -470,9 +465,15 @@ class WP_Blipper_Widget extends WP_Widget {
           if ( $continue ) {
             $continue = false;
             $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
+            // In the following, the lines icluding links to Polaroid|Blipfoto
+            // are commented out until I can make their being shown
+            // customisable, in accordance with WP's guidelines
+            // (https://wordpress.org/plugins/about/guidelines/).
+            // echo '
+            //   <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
+            // ';
             echo '
-              <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
-                <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
+              <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
                     <img 
                     class="fatwide" 
                     src="' . $image_url . '" 
@@ -483,9 +484,11 @@ class WP_Blipper_Widget extends WP_Widget {
                     ' . $date . '<br>' . $blip['title'] . '
                   </figcaption>
                 </figure>
-              </a>
-              <p class="fatwide" style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a> on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a>.</p>
-            ';
+              ';
+            // echo '
+            //   </a>
+            // ';
+            // echo '<p class="fatwide" style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a> on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a>.</p>';
           }
         }
       }
