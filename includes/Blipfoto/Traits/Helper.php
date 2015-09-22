@@ -2,6 +2,10 @@
 
 namespace wpbw_Blipfoto\wpbw_Traits;
 
+// If this file is called directly, abort.
+defined( 'ABSPATH' ) or die();
+defined( 'WPINC' ) or die();
+
 trait wpbw_Helper {
 
 	/**

@@ -2,6 +2,10 @@
 
 namespace wpbw_Blipfoto\wpbw_Api;
 
+// If this file is called directly, abort.
+defined( 'ABSPATH' ) or die();
+defined( 'WPINC' ) or die();
+
 use \ReflectionClass;
 use wpbw_Blipfoto\wpbw_Api\wpbw_File;
 use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
