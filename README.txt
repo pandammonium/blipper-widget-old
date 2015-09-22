@@ -19,7 +19,9 @@ The image shown is hotlinked to from your website.  It is not stored locally, ot
 
 NB By using this app, you consent to this plugin performing actions involving your account, including, but not limited to, obtaining your account details (excluding username and password).  By using this widget, you also consent to sharing any content or private information (excluding username and password) with…?
 
-This plug-in is loosely based on BlipPress by Simon Blackbourne.
+If you'd like to see the plugin in action, you can see [WP Blipper Widget showing my latest blip on my website](http://pandammoniuum.org/).
+
+This plug-in is loosely based on BlipPress by Simon Blackbourne.  I very much appreciate having his work to guide me with the use of the Polaroid|Blipfoto API.
 
 == Frequently Asked Questions ==
 
