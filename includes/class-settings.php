@@ -219,72 +219,62 @@ class wpbw_Settings {
     } else {
 
       $settings = get_option( 'wp-blipper-widget-settings-oauth' );
-      if ( false === $settings ) {
+
+      $input['client-id'] = trim( esc_attr( $input['client-id'] ) );
+      if ( true === ctype_alnum( $input['client-id'] ) ) {
+        $output['client-id'] = $input['client-id'];
+      } else if ( empty( $input['client-id'] ) ) {
         add_settings_error(
           'wp-blipper-settings-group', 
-          'invalid-oauth', 
-          __( 'No settings have been set yet.', 'wp-blipper-widget' )
+          'missing-oauth-client-id', 
+          __( 'Please enter a value for the client ID.', 'wp-blipper-widget' )
         );
-
       } else {
-
-        $input['client-id'] = trim( esc_attr( $input['client-id'] ) );
-        if ( true === ctype_alnum( $input['client-id'] ) ) {
-          $output['client-id'] = $input['client-id'];
-        } else if ( empty( $input['client-id'] ) ) {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'missing-oauth-client-id', 
-            __( 'Please enter a value for the client ID.', 'wp-blipper-widget' )
-          );
-        } else {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'invalid-oauth-client-id', 
-            __( 'Please enter alphanumeric characters only for the client ID.', 'wp-blipper-widget' )
-          );
-          $output['client-id'] = '';
-        }
-
-        $input['client-secret'] = trim( esc_attr( $input['client-secret'] ) );
-        if ( true === ctype_alnum( $input['client-secret'] ) ) {
-          $output['client-secret'] = $input['client-secret'];
-        } else if ( empty( $input['client-secret'] ) ) {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'missing-oauth-client-secret', 
-            __( 'Please enter a value for the client secret.', 'wp-blipper-widget' )
-          );
-        } else {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'invalid-oauth-client-secret', 
-            __( 'Please enter alphanumeric characters only for the client secret.', 'wp-blipper-widget' )
-          );
-          $output['client-secret'] = '';
-        }
-
-        $input['access-token'] = trim( esc_attr( $input['access-token'] ) );
-        if ( true === ctype_alnum( $input['access-token'] ) ) {
-          $output['access-token'] = $input['access-token'];
-        } else if ( empty( $input['access-token'] ) ) {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'missing-oauth-access-token', 
-            __( 'Please enter a value for the access token.', 'wp-blipper-widget' )
-          );
-        } else {
-          add_settings_error(
-            'wp-blipper-settings-group', 
-            'invalid-oauth-access-token', 
-            __( 'Please enter alphanumeric characters only for the access token.', 'wp-blipper-widget' )
-          );
-          $output['access-token'] = '';
-        }
-
-        $this->wp_blipper_widget_test_connection( $output );
-
+        add_settings_error(
+          'wp-blipper-settings-group', 
+          'invalid-oauth-client-id', 
+          __( 'Please enter alphanumeric characters only for the client ID.', 'wp-blipper-widget' )
+        );
+        $output['client-id'] = '';
       }
+
+      $input['client-secret'] = trim( esc_attr( $input['client-secret'] ) );
+      if ( true === ctype_alnum( $input['client-secret'] ) ) {
+        $output['client-secret'] = $input['client-secret'];
+      } else if ( empty( $input['client-secret'] ) ) {
+        add_settings_error(
+          'wp-blipper-settings-group', 
+          'missing-oauth-client-secret', 
+          __( 'Please enter a value for the client secret.', 'wp-blipper-widget' )
+        );
+      } else {
+        add_settings_error(
+          'wp-blipper-settings-group', 
+          'invalid-oauth-client-secret', 
+          __( 'Please enter alphanumeric characters only for the client secret.', 'wp-blipper-widget' )
+        );
+        $output['client-secret'] = '';
+      }
+
+      $input['access-token'] = trim( esc_attr( $input['access-token'] ) );
+      if ( true === ctype_alnum( $input['access-token'] ) ) {
+        $output['access-token'] = $input['access-token'];
+      } else if ( empty( $input['access-token'] ) ) {
+        add_settings_error(
+          'wp-blipper-settings-group', 
+          'missing-oauth-access-token', 
+          __( 'Please enter a value for the access token.', 'wp-blipper-widget' )
+        );
+      } else {
+        add_settings_error(
+          'wp-blipper-settings-group', 
+          'invalid-oauth-access-token', 
+          __( 'Please enter alphanumeric characters only for the access token.', 'wp-blipper-widget' )
+        );
+        $output['access-token'] = '';
+      }
+
+      $this->wp_blipper_widget_test_connection( $output );
 
     }
 
@@ -371,6 +361,20 @@ class wpbw_Settings {
   }
 
   /**
+   * Check if the settings have been set or not.
+   *
+   * @since     0.0.2
+   * @access    public
+   * @return    string    The string used as the key in the database, which
+   *                      stores the widget's OAuth settings.
+   */
+  public function wp_blipper_widget_settings_have_been_set() {
+
+    return false != get_option( 'wp-blipper-widget-settings-oauth' );
+
+  }
+
+  /**
    * Return the name of the options key in the database
    * (see wp_blipper_widget_admin_init)
    *
@@ -380,7 +384,9 @@ class wpbw_Settings {
    *                      stores the widget's OAuth settings.
    */
   public function wp_blipper_widget_settings_db_name() {
+
     return 'wp-blipper-widget-settings-oauth';
+
   }
 
 

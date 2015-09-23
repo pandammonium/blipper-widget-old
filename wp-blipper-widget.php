@@ -38,7 +38,7 @@ add_action( 'widgets_init', 'register_wp_blipper_widget' ); // function to load 
 // Add a link to the WP Blipper Settings page from the plugins list.
 function wp_blipper_widget_add_settings_link( $links ) {
   $links[] = '<a href="' .
-    admin_url( 'options-general.php?page=options-wp-blipper-widget' ) .
+    esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) .
     '">' . __('Settings') . '</a>';
   return $links;
 }
@@ -46,7 +46,7 @@ add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'wp_blipper_widget_
 
 // Error handling
 function wp_blipper_exception( $e ) {
-  echo '<p class="fatwide">An unexpected error has occurred.  ' . $e->getMessage() . '  Please try again later.</p>';
+  echo '<p>An unexpected error has occurred.  ' . $e->getMessage() . '  Please try again later.</p>';
 }
 set_exception_handler('wp_blipper_exception');
 
@@ -59,7 +59,10 @@ class WP_Blipper_Widget extends WP_Widget {
   * @var      array     $default_setting_values       The widget's default settings
   */
   private $default_setting_values = array (
-    'title'         => 'My latest blip',
+    'title'                 => 'My latest blip',
+    'display-journal-title' => 'hide',
+    'add-link-to-blip'      => 'hide',
+    'powered-by'            => 'hide',
   );
 
 /**
@@ -136,7 +139,10 @@ class WP_Blipper_Widget extends WP_Widget {
   */
   public function update( $new_instance, $old_instance ) {
 
-    $instance['title']          = $this->wp_blipper_validate( $new_instance, $old_instance, 'title' );
+    $instance['title']                  = $this->wp_blipper_validate( $new_instance, $old_instance, 'title' );
+    $instance['display-journal-title']  = $this->wp_blipper_validate( $new_instance, $old_instance, 'display-journal-title' );
+    $instance['add-link-to-blip']       = $this->wp_blipper_validate( $new_instance, $old_instance, 'add-link-to-blip' );
+    $instance['powered-by']             = $this->wp_blipper_validate( $new_instance, $old_instance, 'powered-by' );
 
     return $instance;
 
@@ -170,7 +176,13 @@ class WP_Blipper_Widget extends WP_Widget {
           $output = 'Please enter printable characters only';
         }
       break;
+      case 'display-journal-title':
+      case 'add-link-to-blip':
+      case 'powered-by':
+        $output = $new_settings[$setting_field];
+      break;
       default:
+        $output = null;
     }
 
     return $output;
@@ -187,7 +199,10 @@ class WP_Blipper_Widget extends WP_Widget {
   private function wp_blipper_get_display_values( $instance ) {
 
     return array(
-      'title'         => ! empty( $instance['title'] )          ? __( $instance['title'], 'wp-blipper-widget' )         : __( $this->default_setting_values['title'], 'wp-blipper-widget' ),
+      'title'                 => ! empty( $instance['title'] ) ? __( $instance['title'], 'wp-blipper-widget' ) : __( $this->default_setting_values['title'], 'wp-blipper-widget' ),
+      'display-journal-title' => $instance['display-journal-title'] ? 'show' : 'hide',
+      'add-link-to-blip'      => $instance['add-link-to-blip'] ? 'show' : 'hide',
+      'powered-by'            => $instance['powered-by'] ? 'show' : 'hide',
     );
 
   }
@@ -280,15 +295,21 @@ class WP_Blipper_Widget extends WP_Widget {
         if ( $settings['access-token'] === $this->client->accessToken() ) {
           $client_created = true;
         } else {
-          throw new wpbw_OAuthException( 'Error.  Can\'t connect to Polaroid|Blipfoto.  Please check your OAuth settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.' );
+          throw new wpbw_OAuthException( 'Error.  Can\'t connect to Polaroid|Blipfoto.  Please check your OAuth settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.' );
         }
       } catch ( wpbw_OAuthException $e ) {
-        echo '<p class="fatwide">' . $e->getMessage() . '</p>';
+        if ( current_user_can( 'manage_options' ) ) {
+          echo '<p>' . $e->getMessage() . '</p>';
+        }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.</p>';
+        if ( current_user_can( 'manage_options' ) ) {
+          echo '<p>Polaroid|Blipfoto error.  ' . $e->getMessage() . '  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.</p>';
+        }
       }
     } else {
-      echo '<p class="fatwide">You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.</p>';
+      if ( current_user_can( 'manage_options' ) ) {
+        echo '<p>You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.</p>';
+      }
     }
 
     return $client_created;
@@ -309,24 +330,24 @@ class WP_Blipper_Widget extends WP_Widget {
     try {
       $user_profile = $this->client->get( 'user/profile' );
       if ( $user_profile->error() ) {
-        throw new wpbw_ApiResponseException( $user_profile->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.' );
+        throw new wpbw_ApiResponseException( $user_profile->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.' );
       } else {
         $continue = true;
       }
     } catch ( wpbw_ApiResponseException $e ) {
-      echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+      echo '<p>Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
     }
     if ( $continue ) {
       $continue = false;
       try {
         $user_settings = $this->client->get( 'user/settings' );
         if ( $user_settings->error() ) {
-          throw new wpbw_ApiResponseException( $user_settings->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.' );
+          throw new wpbw_ApiResponseException( $user_settings->error() . '  Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.' );
         } else {
           $continue = true;
         }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -334,12 +355,12 @@ class WP_Blipper_Widget extends WP_Widget {
       try {
         $user = $user_profile->data('user');
         if ( null == $user ) {
-          throw new wpbw_ApiResponseException( 'Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.');
+          throw new wpbw_ApiResponseException( 'Can\'t access your Polaroid|Blipfoto account.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.');
         } else {
           $continue = true;
         }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -348,10 +369,10 @@ class WP_Blipper_Widget extends WP_Widget {
       try {
         $continue = $username == $user['username'];
         if ( !$continue ) {
-          throw new ErrorException( 'Usernames don\'t match.  You entered: <i>' . $instance['username'] . '</i>; I got: <i>' . $username . '</i>.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue.' );
+          throw new ErrorException( 'Usernames don\'t match.  You entered: <i>' . $instance['username'] . '</i>; I got: <i>' . $username . '</i>.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.' );
         }
       } catch ( ErrorException $e ) {
-        echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -368,12 +389,12 @@ class WP_Blipper_Widget extends WP_Widget {
           )
         );
         if ( $journal->error() ) {
-          throw new wpbw_ApiResponseException( $journal->error() . '  Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue or try again later.');
+          throw new wpbw_ApiResponseException( $journal->error() . '  Can\'t access your journal.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue or try again later.');
         } else {
           $continue = true;
         }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Polaroid|Blipfoto error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -381,12 +402,12 @@ class WP_Blipper_Widget extends WP_Widget {
       try {
         $blips = $journal->data( 'entries' );
         if ( null === $blips ) {
-          throw new ErrorException( 'Can\'t access your journal.  Please check your settings on <a href="' . esc_url( get_admin_url( null, 'options-wp-blipper-widget.php') ) . '">the WP Blipper Widget settings page</a> to continue or try again later.');
+          throw new ErrorException( 'Can\'t access your journal.  Please check your settings on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue or try again later.');
         } else {
           $continue = true;
         }
       } catch ( ErrorException $e ) {
-        echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Error.  ' . $e->getMessage() . '</p>';
       }
     }
     // Assuming any blips have been retrieved, there should only be one.
@@ -399,7 +420,7 @@ class WP_Blipper_Widget extends WP_Widget {
           $continue = true;
         }
       } catch ( ErrorException $e ) {
-      echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';
+      echo '<p>Error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -420,7 +441,7 @@ class WP_Blipper_Widget extends WP_Widget {
          $continue = true;
        }
       } catch ( wpbw_ApiResponseException $e ) {
-        echo '<p class="fatwide">Polaroid| Blipfoto error.  ' . $e->getMessage() . '</p>';
+        echo '<p>Polaroid| Blipfoto error.  ' . $e->getMessage() . '</p>';
       }
     }
     if ( $continue ) {
@@ -444,24 +465,22 @@ class WP_Blipper_Widget extends WP_Widget {
           throw new ErrorException(' Unable to get URL of image.');
         }
       } catch ( ErrorException $e ) {
-        echo '<p class="fatwide">Error.  ' . $e->getMessage() . '</p>';              
+        echo '<p>Error.  ' . $e->getMessage() . '</p>';              
       }
       $continue = null != $image_url;
     }
     if ( $continue ) {
       $continue = false;
       $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
-      // In the following, the lines icluding links to Polaroid|Blipfoto
-      // are commented out until I can make their being shown
-      // customisable, in accordance with WP's guidelines
-      // (https://wordpress.org/plugins/about/guidelines/).
-      // echo '
-      //   <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
-      // ';
+      if ( $instance['add-link-to-blip'] ) {
+        echo '
+          <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
+        ';
+      }
       echo '
-        <figure class="fatwide" style="border-width:10;border-style:solid;border-color:#333333">
+        <figure style="border-width:10;border-style:solid;border-color:#333333">
               <img 
-              class="fatwide" 
+              
               src="' . $image_url . '" 
               // alt="" 
               // height="" 
@@ -471,10 +490,16 @@ class WP_Blipper_Widget extends WP_Widget {
             </figcaption>
           </figure>
         ';
-      // echo '
-      //   </a>
-      // ';
-      // echo '<p class="fatwide" style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a> on <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a>.</p>';
+      echo '
+        </a>
+      ';
+      if ( $instance['display-journal-title'] && $instance['powered-by'] ) {
+        echo '<p style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a><br>Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+      } else if ( $instance['display-journal-title'] ) {
+        echo '<p style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a></p>';
+      } else if ($instance['powered-by'] ) {
+        echo '<p style="font-size:70%;margin-top:1ex">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+      }
     }
   }
 
@@ -487,17 +512,72 @@ class WP_Blipper_Widget extends WP_Widget {
   */
   private function display_form( $settings ) {
 
-    ?>
-    <p><strong><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title' ); ?></label></strong></p>
-      <input 
-        class="widefat" 
-        id="<?php echo $this->get_field_id( 'title' ) ?>" 
-        name="<?php echo $this->get_field_name( 'title' ); ?>" 
-        type="text" 
-        value="<?php echo esc_attr( $settings['title'] ); ?>">
-    </p>
+    if ( false === $this->settings->wp_blipper_widget_settings_have_been_set() ) {
+      echo '<p>You need to set your Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=options-wp-blipper-widget' ) ) . '">the WP Blipper Widget settings page</a> to continue.</p>';
+    } else {
+      ?>
 
-    <?php
+      <p>
+        <label for="<?php echo $this->get_field_id( 'title' ); ?>">
+          <?php _e( 'Widget title:', 'wp-blipper-widget' ); ?>
+        </label>
+        <input 
+          class="widefat"
+          id="<?php echo $this->get_field_id( 'title' ) ?>" 
+          name="<?php echo $this->get_field_name( 'title' ); ?>" 
+          type="text" 
+          value="<?php echo esc_attr( $settings['title'] ); ?>"
+        >
+      </p>
+      <p class="description">Leave the title field blank if you don't want to display a title.</p>
+
+      <p>
+        <input
+          class="fatwide"
+          id="<?php echo $this->get_field_id( 'add-link-to-blip' ); ?>"
+          name="<?php echo $this->get_field_name( 'add-link-to-blip' ); ?>"
+          type="checkbox"
+          value="1"
+          <?php echo esc_attr( $settings['add-link-to-blip'] ) == 'show' ? 'checked="checked"' : ''; ?>
+        >
+        <label for="<?php echo $this->get_field_id( 'add-link-to-blip' ); ?>">
+          <?php _e( 'Include link to your latest blip', 'add-link-to-blip' ) ?>
+        </label>
+      </p>
+      <p class="description">Tick the box to make the widget link back to the corresponding blip in your journal.  Leave it unticked if you do want to include a link back to your latest blip.</p>
+
+      <p>
+        <input
+          class="fatwide"
+          id="<?php echo $this->get_field_id( 'display-journal-title' ); ?>"
+          name="<?php echo $this->get_field_name( 'display-journal-title' ); ?>"
+          type="checkbox"
+          value="1"
+          <?php echo esc_attr( $settings['display-journal-title'] ) == 'show' ? 'checked="checked"' : ''; ?>
+        >
+        <label for="<?php echo $this->get_field_id( 'display-journal-title' ); ?>">
+          <?php _e( 'Display journal title and link', 'display-journal-title' ) ?>
+        </label>
+      </p>
+      <p class="description">Tick the box to show the name of your journal with a link back to your Polaroid|Blipfoto journal.  Leave it unticked if you do want to show the name of your journal or have a link back to your journal.</p>
+
+      <p>
+        <input
+          class="fatwide"
+          id="<?php echo $this->get_field_id( 'powered-by' ); ?>"
+          name="<?php echo $this->get_field_name( 'powered-by' ); ?>"
+          type="checkbox"
+          value="1"
+          <?php echo esc_attr( $settings['powered-by'] ) == 'show' ? 'checked="checked"' : ''; ?>
+        >
+        <label for="<?php echo $this->get_field_id( 'powered-by' ); ?>">
+          <?php _e( 'Include a \'powered by\' link', 'powered-by' ) ?>
+        </label>
+      </p>
+      <p class="description">Tick the box to include a 'powered by' link back to Polaroid|Blipfoto.  Leave it unticked if you do want to include a 'powered by'-style link.</p>
+
+      <?php
+    }
 
   }
 
