@@ -1,69 +1,144 @@
 === WP Blipper Widget ===
 Contributors: pandammonium
-Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display
+Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display,image display,365 project
 Requires at least: 4.3
 Tested up to: 4.3
-Stable tag: 
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Displays the latest entry on Polaroid|Blipfoto (a blip) by a given user in a widget.
+Display your latest blip in a widget.  Requires a Polaroid|Blipfoto account.
 
 == Description ==
 
-Displays the latest entry on Polaroid|Blipfoto by a given user in a widget on your WordPress website.  Note: you must have an account with Polaroid|Blipfoto to use this widget.  If you don't have one, you can [easily get one from Polaroid|Blipfoto](https://www.polaroidblipfoto.com/account/signup).
+Displays the latest entry on Polaroid|Blipfoto by a given user in a widget on your WordPress website.  Note: you must have an account with Polaroid|Blipfoto to use this widget.  If you don't have one, you can [get one for free](https://www.polaroidblipfoto.com/account/signup).
 
-The image shown is hotlinked to from your website.  It is not stored locally, otherwise you could run into storage problems on your server.
+Currently, WP Blipper Widget:
 
-[Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journal service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
+* displays the latest blip (image, title and date) in your Polaroid|Blipfoto account in a widget;
+* takes you to the corresponding blip on the Polaroid|Blipfoto website if you click on the image or its title and date (optional);
+* displays your journal name and a link to your Polaroid|Blipfoto account (optional); and
+* displays a link to the Polaroid|Blipfoto website (optional).
 
-NB By using this app, you consent to this plugin performing actions involving your account, including, but not limited to, obtaining your account details (excluding username and password).  By using this widget, you also consent to sharing any content or private information (excluding username and password) with…?
+The image in the blip is not stored on your server.  Instead, the widget hotlinks to the image from Polaroid|Blipfoto.
 
-If you'd like to see the plugin in action, you can see [WP Blipper Widget showing my latest blip on my website](http://pandammoniuum.org/).
+= View the plugin in action! =
 
-This plug-in is loosely based on BlipPress by Simon Blackbourne.  I very much appreciate having his work to guide me with the use of the Polaroid|Blipfoto API.
+If you'd like to see the plugin in action, you can see [WP Blipper Widget showing my latest blip on my WordPress website](http://pandammonium.org/).
 
-You can add feedback to my WP Blipper Plugin page()
+= Languages =
+Currently, only English is supported.  I'm afraid I don't yet know how to make other languages available.  If you'd like to help, let me know in the comments on [my WP Blipper Plugin page](http://pandammonium.org/wordpress-dev/wp-blipper-widget/).
+
+= About Polaroid|Blipfoto =
+[Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journalling service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
+
+This plugin is independent of and unendorsed by Polaroid|Blipfoto.
+
+= Requirements =
+* Polaroid|Blipfoto account
+* WordPress 4.3
+* PHP 5
+* PHP [Client URL (cURL) library](http://php.net/manual/en/book.curl.php)
+
+= Disclaimer =
+By using this plugin, you consent to it performing actions involving your Polaroid|Blipfoto account, including, but not limited to, obtaining your account details (excluding your password).
 
 == Frequently Asked Questions ==
 
-= Do you have a Polaroid|Blipfoto account? =
-Yes, my username is [pandammonium](https://www.polaroidblipfoto.com/pandammonium).
+= Does the widget need my Polaroid|Blipfoto username and password? =
+The widget uses OAuth 2.0 to authorise access to your Polaroid|Blipfoto account, so there is no need to enter your username or password.  However, the widget is able to access your username through the Polaroid|Blipfoto API.  Since this information is available publicly anyway, this shouldn't be a problem.  If you do have a problem with this, please do not use the widget.
+
+= Why doesn't the plugin seem to do anything? =
+* You may not have any blips to view.  Please make sure you have at least one blip in your Polaroid|Blipfoto account.
+* It may be because you have made a mistake transferring your OAuth credentials from the Polaroid|Blipfoto website to the plugin settings.  Please make sure these details are correct.
+* If you have refreshed your OAuth app credentials or access token at Polaroid|Blipfoto, you will need to update these details on the WP Blipper Widget settingsd page.
+
+You must be logged in and able to manage WordPress settings to view any error message the plugin produces.
+
+= Where can I get support for WP Blipper Widget? =
+You can use [the WP Blipper Widget page](http://pandammonium.org/wordpress-dev/wp-blipper-widget/) on my website to ask questions and report problems.
 
 == Installation ==
 
-1. Upload `wp-blipper.php` to the `/wp-content/plugins/` directory or use the automatic plugin installer.
-1. Activate the plugin through the 'Plugins' menu in WordPress.
-1. Add the WP Blipper Widget to a widget-enabled area.
+You can install this plugin either automatically or manually. The instructions for each method are given below.
 
-You'll need OAuth credentials from Polaroid|Blipfoto:
+= Automatic plugin installation =
 
-1. Open the the Polaroid|Blipfoto apps page in a new tab or window.
-1. Press the Create new app button.
-1. In the Name field, give your app any name you like, for example, My super-duper app.
-1. The Type field should be set to Web application.
-1. Optionally, describe your app in the Description field, so you know what it does.
-1. In the Website field, enter the URL of your website.
-1. Leave the Redirect URI field blank.
-1. Indicate that you agree to the Developer rules.
-1. Press the Create a new app button.
-1. You should now see your Client ID, Client Secret and Access Token. Copy and paste these into the corresponding fields below.
+1. Go to 'Plugins' > 'Add New'.
+1. Search for 'WP Blipper Widget'. Find the plugin in the search results the search results.
+1. Click 'Details' for more information about WP Blipper Widget and instructions you may wish to print or save to help set up WP Blipper Widget.
+1. Click 'Install Now' to install WP Blipper Widget.
+1. The resulting installation screen will list the installation as successful or note any problems during the install.
+1. If successful, click 'Activate Plugin' to activate it, or 'Return to Plugin Installer' for further actions.
+
+= Manual plugin installation =
+
+Installation of a WordPress plugin manually requires FTP familiarity and the awareness that you may put your site at risk if you install a WordPress plugin incompatible with the current version or from an unreliable source. You must also have permission to access your server by FTP.
+
+1. Backup your site completely before proceeding.
+1. Download WP Blipper Widget to your computer, for example, to your desktop.
+1. If downloaded as a zip archive, extract the plugin folder, wp-blipper-widget.
+1. Read the read-me file thoroughly to ensure you understand any installation instructions properly.
+1. With your FTP program, upload the plugin folder to the wp-content/plugins folder in your WordPress directory online.
+1. Go to the plugins screen and find the newly uploaded plugin, WP Blipper Widget, in the list.
+1. Click 'Activate' to activate it.
+1. Check the read-me file for further instructions or information.
+
+= OAuth 2.0 =
+
+You'll need OAuth credentials and an access token from Polaroid|Blipfoto to use the widget.  To obtain these:
+
+1. Open [the Polaroid|Blipfoto apps page](https://www.polaroidblipfoto.com/developer/apps) in a new tab or window.
+1. Press the 'Create new app' button.
+1. In the 'Name' field, give your app any name you like, for example, 'My super-duper app'.
+1. The 'Type' field should be set to 'Web application'.
+1. Optionally, describe your app in the 'Description' field, so you know what it does.
+1. In the 'Website' field, enter the URL of your website.
+1. Leave the 'Redirect URI' field blank.
+1. Indicate that you agree to the 'Developer rules'.
+1. Press the 'Create a new app' button.
+1. You should now see your Credentials (Client ID and Client Secret) and Access Token.  Copy and paste these into the corresponding fields on the WP Blipper Widget settings page.
+
+You can revoke access from WP Blipper Widget to your Polaroind|Blipfoto account easily:
+
+1. Sign in to your Polaroid|Blipfoto account.
+1. Go to [your Polaroid|Blipfoto app settings](https://www.polaroidblipfoto.com/settings/apps).
+1. Select the app whose access you want to revoke, for example, 'My super-duper app'.
+1. Press the 'Save changes' button.
+
+Note that your plugin will no longer work.
+
+Once installed and the OAuth credentials have been set successfully, add the widget to a widget-enabled area, and set up the settings on the widget form as you wish.  When you view your webpage, you should see your latest blip in the widget-enabled area.  If you can't see it, please check your OAuth settings carefully.
+
+The widget settings are currently:
+
+* Widget title: customisable. The default is 'My latest blip', but you can change it to what suits you or you can delete it and leave it blank.
+* Include link to your latest blip: to link the displayed blip back to the corresponding entry on Polaroid|Blipfoto, tick the box.  The link has a rel="nofollow" attribute.
+* Display journal title and link: to include a link back to your Polaroid|Blipfoto journal, tick the box. For my journal, the link will appear as 'From Panda’s Pics'.  The link has a rel="nofollow" attribute.
+* Include a ‘powered by’ link: to include a 'Powered by Polaroid|Blipfoto' link to be displayed, tick the box.  The link has a rel="nofollow" attribute.
 
 == Screenshots ==
 
-1. An example of the plugin in use in the Twenty Fifteen light theme.
-2. An example of the plugin in use in the Twenty Fifteen dark theme.
-3. An example of the plugin in use in the Make theme (taken from my website at [pandammonium.org](http://pandammonium.org/)).
-4. Part of the back-end widget form in the admin area.
+1. The WP Blipper Widget settings page.
+2. The widget form settings.
+3. An example of the widget in use on [pandammonium.org](http://pandammonium.org/), showing a link to my Polaroid|Blipfoto journal and a powered-by link.
 
 == Changelog ==
 
 = 0.0.2 =
-1. Divided the widget's settings into those that act behind the scenes (such as OAuth) and those that direct;y affect the appearance of the widget onthe front end.
-1. Moved OAuth settings to settings page under the general WP settings menu in the admin area.
-1. Added settings affecting the widget's appearance to the widget form; specifically including links back to Polaroid|Blipfoto (the blip itself, the user's journal, Polaroid|Blipfoto).  By default, these links are not displayed; the user must opt in to their display.
+* Changed: the widget's settings have been divided into those that act behind the scenes (such as OAuth) and those that directly affect the appearance of the widget front end.
+* Changed: the OAuth settings moved to WP Blipper settings page under the general WordPress settings menu in the admin area.
+* Added: settings affecting the widget's appearance to the widget form; specifically including links back to Polaroid|Blipfoto (the blip itself, the user's journal, Polaroid|Blipfoto).  By default, these links are not displayed; the user must opt in to their display.
 
 = 0.0.1 =
-Initial version.
+* Initial version.
 
-== Upgrade Notice ==
+== Known issues ==
+
+There is [a list of known problems and enhancement requests](https://github.com/pandammonium/wp-blipper-widget/issues) on GitHub.
+
+== Credits ==
+
+This plug-in is loosely based on BlipPress by [Simon Blackbourne](https://mobile.twitter.com/lumpysimon).  I very much appreciate having his work to guide me with the use of [the Polaroid|Blipfoto API](https://www.polaroidblipfoto.com/developer/api).
+
+I also used the excellent [Rotating Tweets)[https://wordpress.org/plugins/rotatingtweets/] plugin to guide me with the settings page and the widget back-end.
