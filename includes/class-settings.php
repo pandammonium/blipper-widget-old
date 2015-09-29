@@ -330,14 +330,14 @@ class wpbw_Settings {
    * @access    public
    * @param     array     The OAuth settings being proposed by the user.
    */
-  private function wp_blipper_widget_test_connection( $settings ) {
+  private function wp_blipper_widget_test_connection( $oauth_settings ) {
 
     $client = null;
     try {
       $client = new wpbw_Client (
-       $settings['client-id'],
-       $settings['client-secret'],
-       $settings['access-token']
+       $oauth_settings['client-id'],
+       $oauth_settings['client-secret'],
+       $oauth_settings['access-token']
       );
     } catch ( wpbw_ApiResponseException $e ) {
       add_settings_error( 
@@ -375,6 +375,19 @@ class wpbw_Settings {
   }
 
   /**
+   * Return the settings in the database
+   *
+   * @since     0.0.2
+   * @access    public
+   * @return    array     The settings in the database or false if not set.
+   */
+  public function wp_blipper_widget_get_settings() {
+
+    return get_option( 'wp-blipper-widget-settings-oauth' );
+
+  }
+
+  /**
    * Return the name of the options key in the database
    * (see wp_blipper_widget_admin_init)
    *
@@ -383,7 +396,7 @@ class wpbw_Settings {
    * @return    string    The string used as the key in the database, which
    *                      stores the widget's OAuth settings.
    */
-  public function wp_blipper_widget_settings_db_name() {
+  public function wp_blipper_widget_get_settings_db_name() {
 
     return 'wp-blipper-widget-settings-oauth';
 
