@@ -1,13 +1,13 @@
-=== Plugin Name ===
+=== WP Blipper Widget ===
 Contributors: pandammonium
-Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto
+Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display
 Requires at least: 4.3
 Tested up to: 4.3
-Stable tag: trunk
+Stable tag: 
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Displays the latest entry on Polaroid|Blipfoto by a given user in a widget.
+Displays the latest entry on Polaroid|Blipfoto (a blip) by a given user in a widget.
 
 == Description ==
 
@@ -22,6 +22,8 @@ NB By using this app, you consent to this plugin performing actions involving yo
 If you'd like to see the plugin in action, you can see [WP Blipper Widget showing my latest blip on my website](http://pandammoniuum.org/).
 
 This plug-in is loosely based on BlipPress by Simon Blackbourne.  I very much appreciate having his work to guide me with the use of the Polaroid|Blipfoto API.
+
+You can add feedback to my WP Blipper Plugin page()
 
 == Frequently Asked Questions ==
 
@@ -56,5 +58,12 @@ You'll need OAuth credentials from Polaroid|Blipfoto:
 
 == Changelog ==
 
+= 0.0.2 =
+1. Divided the widget's settings into those that act behind the scenes (such as OAuth) and those that direct;y affect the appearance of the widget onthe front end.
+1. Moved OAuth settings to settings page under the general WP settings menu in the admin area.
+1. Added settings affecting the widget's appearance to the widget form; specifically including links back to Polaroid|Blipfoto (the blip itself, the user's journal, Polaroid|Blipfoto).  By default, these links are not displayed; the user must opt in to their display.
+
 = 0.0.1 =
 Initial version.
+
+== Upgrade Notice ==
