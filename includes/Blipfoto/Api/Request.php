@@ -1,20 +1,20 @@
 <?php
 
-namespace wpbw_Blipfoto\wpbw_Api;
+namespace blipper_widget_Blipfoto\blipper_widget_Api;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
-use wpbw_Blipfoto\wpbw_Api\wpbw_File;
-use wpbw_Blipfoto\wpbw_Api\wpbw_Response;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_NetworkException;
-use wpbw_Blipfoto\wpbw_Traits\wpbw_Helper;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_File;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Response;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_NetworkException;
+use blipper_widget_Blipfoto\blipper_widget_Traits\blipper_widget_Helper;
 
-class wpbw_Request {
+class blipper_widget_Request {
 
-	use wpbw_Helper;
+	use blipper_widget_Helper;
 
 	protected $client;
 	protected $method;
@@ -27,13 +27,13 @@ class wpbw_Request {
 	/**
 	 * Create new Client instance.
 	 *
-	 * @param wpbw_Client $client
+	 * @param blipper_widget_Client $client
 	 * @param string $method (optional)
 	 * @param string $resource (optional)
 	 * @param array $params (optional)
 	 * @param array $files (optional)
 	 */
-	public function __construct(wpbw_Client $client, $method = 'GET', $resource = null, array $params = [], array $files = []) {
+	public function __construct(blipper_widget_Client $client, $method = 'GET', $resource = null, array $params = [], array $files = []) {
 		$this->client = $client;
 		$this->method($method);
 		$this->resource($resource);
@@ -191,10 +191,10 @@ class wpbw_Request {
 
 		// Check for curl error.
 		if ($error_code > 0) {
-			throw new wpbw_NetworkException($error_message, $error_code);
+			throw new blipper_widget_NetworkException($error_message, $error_code);
 		}
 
-		return new wpbw_Response($body, $http_status, $rate_limit);
+		return new blipper_widget_Response($body, $http_status, $rate_limit);
 	}
 
 	/**

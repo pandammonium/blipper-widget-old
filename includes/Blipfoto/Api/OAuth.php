@@ -1,27 +1,27 @@
 <?php
 
-namespace wpbw_Blipfoto\wpbw_Api;
+namespace blipper_widget_Blipfoto\blipper_widget_Api;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_OAuthException;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
 
-class wpbw_OAuth {
+class blipper_widget_OAuth {
 
-	protected $wpbw_Client;
+	protected $blipper_widget_Client;
 	protected $oauth_key;
 
 	/**
 	 * Construct a new oauth instance.
 	 *
-	 * @param wpbw_Client $wpbw_Client
+	 * @param blipper_widget_Client $blipper_widget_Client
 	 */
-	public function __construct(wpbw_Client $wpbw_Client) {
-		$this->wpbw_Client = $wpbw_Client;
-		$this->oauth_key = wpbw_Client::SESSION_PREFIX . 'params';
+	public function __construct(blipper_widget_Client $blipper_widget_Client) {
+		$this->blipper_widget_Client = $blipper_widget_Client;
+		$this->oauth_key = blipper_widget_Client::SESSION_PREFIX . 'params';
 
 		if (session_status() == PHP_SESSION_NONE) {
 		    session_start();
@@ -35,7 +35,7 @@ class wpbw_OAuth {
 	 * @param string $scope (optional)
 	 * @redirect
  	 */
-	public function authorize($redirect_uri, $scope = wpbw_Client::SCOPE_READ) {
+	public function authorize($redirect_uri, $scope = blipper_widget_Client::SCOPE_READ) {
 		header('Location: ' . $this->getAuthorizeUri($redirect_uri, $scope));
 		exit;
 	}
@@ -47,7 +47,7 @@ class wpbw_OAuth {
 	 * @param string $scope (optional)
 	 * @return string
  	 */
-	public function getAuthorizeUri($redirect_uri, $scope = wpbw_Client::SCOPE_READ) {
+	public function getAuthorizeUri($redirect_uri, $scope = blipper_widget_Client::SCOPE_READ) {
 
 		$state = sha1(mt_rand());
 
@@ -57,10 +57,10 @@ class wpbw_OAuth {
 			'state'			=> $state,
 		];
 
-		return $this->wpbw_Client->authorizationEndpoint() . '?' . http_build_query([
+		return $this->blipper_widget_Client->authorizationEndpoint() . '?' . http_build_query([
 			'response_type'	=> 'code',
-			'client_id'		=> $this->wpbw_Client->id(),
-			'client_secret' => $this->wpbw_Client->secret(),
+			'client_id'		=> $this->blipper_widget_Client->id(),
+			'client_secret' => $this->blipper_widget_Client->secret(),
 			'redirect_uri'	=> $redirect_uri,
 			'scope'			=> $scope,
 			'state'			=> $state,
@@ -71,18 +71,18 @@ class wpbw_OAuth {
 	 * Obtain an authorization code.
 	 *
 	 * @return string
-	 * @throws wpbw_OAuthException
+	 * @throws blipper_widget_OAuthException
 	 */
 	public function getAuthorizationCode() {
 
 		if (isset($_GET['error'])) {
-			throw new wpbw_OAuthException($_GET['error'], 1);	
+			throw new blipper_widget_OAuthException($_GET['error'], 1);	
 		} elseif (!isset($_GET['code']) || !isset($_GET['state'])) {
-			throw new wpbw_OAuthException('Invalid parameters', 2);
+			throw new blipper_widget_OAuthException('Invalid parameters', 2);
 		} elseif (!isset($_SESSION[$this->oauth_key]['state'])) {
-			throw new wpbw_OAuthException('No state found', 3);
+			throw new blipper_widget_OAuthException('No state found', 3);
 		} elseif ($_GET['state'] != $_SESSION[$this->oauth_key]['state']) {
-			throw new wpbw_OAuthException('State invalid', 4);
+			throw new blipper_widget_OAuthException('State invalid', 4);
 		}
 
 		return $_GET['code'];
@@ -103,8 +103,8 @@ class wpbw_OAuth {
 		$params = $_SESSION[$this->oauth_key];
 		unset($_SESSION[$this->oauth_key]);
 
-		$response = $this->wpbw_Client->post('oauth/token', [
-			'client_id'		=> $this->wpbw_Client->id(),
+		$response = $this->blipper_widget_Client->post('oauth/token', [
+			'client_id'		=> $this->blipper_widget_Client->id(),
 			'grant_type'	=> 'authorization_code',
 			'code'			=> $authorization_code,
 			'scope'			=> $params['scope'],

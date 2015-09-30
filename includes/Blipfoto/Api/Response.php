@@ -1,17 +1,17 @@
 <?php
 
-namespace wpbw_Blipfoto\wpbw_Api;
+namespace blipper_widget_Blipfoto\blipper_widget_Api;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_InvalidResponseException;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_OAuthException;
-use wpbw_Blipfoto\wpbw_Traits\wpbw_Helper;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_InvalidResponseException;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
+use blipper_widget_Blipfoto\blipper_widget_Traits\blipper_widget_Helper;
 
-class wpbw_Response {
+class blipper_widget_Response {
 
 //	use Helper;
 
@@ -31,12 +31,12 @@ class wpbw_Response {
 
 		// check status
 		if ($http_status != 200) {
-			throw new wpbw_InvalidResponseException(sprintf('API returned a %d HTTP status.', $http_status), 1);
+			throw new blipper_widget_InvalidResponseException(sprintf('API returned a %d HTTP status.', $http_status), 1);
 		}
 
 		$decoded = @json_decode($raw_body, true);
 		if (!is_array($decoded)) {
-			throw new wpbw_InvalidResponseException('API returned a malformed response.', 2);
+			throw new blipper_widget_InvalidResponseException('API returned a malformed response.', 2);
 		}
 
 		$this->body = $decoded;
@@ -46,9 +46,9 @@ class wpbw_Response {
 		$error = $this->error();
 		if ($error !== null) {
 			if ($error['code'] >= 30 && $error['code'] <= 35) {
-				throw new wpbw_OAuthException($error['message'], $error['code']);
+				throw new blipper_widget_OAuthException($error['message'], $error['code']);
 			} else {
-				throw new wpbw_ApiResponseException($error['message'], $error['code']);
+				throw new blipper_widget_ApiResponseException($error['message'], $error['code']);
 			}
 		}
 	}

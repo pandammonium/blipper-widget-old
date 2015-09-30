@@ -16,21 +16,32 @@ namespace blipper_widget;
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-use wpbw_Blipfoto\wpbw_Api\wpbw_Client;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
 
 /**
  * Widget settings.
  *
  * @since 0.0.2
  */
-class wpbw_Settings {
+class blipper_widget_Settings {
 
+/**
+  * @since    0.0.2
+  * @access   private
+  * @var      array     $blipper_widget_defaults       The widget's default settings
+  */
   private $blipper_widget_defaults = array(
       'client-id'     => '',
       'client-secret' => '',
       'access-token'  => ''
     );
+
+/**
+  * @since    0.0.2
+  * @access   private
+  * @var      array     $blipper_widget_settings       The widget's user-defined settings
+  */
   private $blipper_widget_settings;
 
 /**
@@ -67,7 +78,7 @@ class wpbw_Settings {
       __( 'Blipper Widget Settings', 'blipper-widget' ), // page title (not to be confused with page header)
       __( 'Blipper Widget', 'blipper-widget' ), // menu title
       'manage_options', // capability req'd to access options page
-      'options-blipper-widget', // menu slug
+      'blipper-widget', // menu slug
       array( &$this, 'blipper_widget_options_page' ) // callback function
     );
   }
@@ -90,14 +101,14 @@ class wpbw_Settings {
       'blipper-widget-oauth', // section id
       __( 'Polaroid|Blipfoto OAuth 2.0 Settings', 'blipper-widget' ), // section title
       array( &$this, 'blipper_widget_oauth_instructions'), // section callback function to render information and instructions about this section
-      'options-blipper-widget' // page id (i.e. menu slug)
+      'blipper-widget' // page id (i.e. menu slug)
     );
 
     add_settings_field(
       'blipper-widget-oauth-client-id', // field id
       __( 'Polaroid|Blipfoto Client ID', 'blipper-widget' ), // field title
       array( &$this, 'wp_blipper_field_render'), //callback function to render the field on the form
-      'options-blipper-widget', // page id (i.e. menu slug)
+      'blipper-widget', // page id (i.e. menu slug)
       'blipper-widget-oauth', // section id the field belongs to
       array(
         'type'        => 'text',
@@ -111,7 +122,7 @@ class wpbw_Settings {
       'blipper-widget-oauth-client-secret',
       __( 'Polaroid|Blipfoto Client Secret', 'blipper-widget' ),
       array( &$this, 'wp_blipper_field_render'),
-      'options-blipper-widget',
+      'blipper-widget',
       'blipper-widget-oauth',
       array(
         'type'        => 'text',
@@ -125,7 +136,7 @@ class wpbw_Settings {
       'blipper-widget-oauth-access-token',
       __( 'Polaroid|Blipfoto Access Token', 'blipper-widget' ),
       array( &$this, 'wp_blipper_field_render'),
-      'options-blipper-widget',
+      'blipper-widget',
       'blipper-widget-oauth',
       array(
         'type'        => 'text',
@@ -148,11 +159,7 @@ class wpbw_Settings {
   public function wp_blipper_field_render( $args ) {
 
     $settings = get_option( 'blipper-widget-settings-oauth' );
-    if ( $settings ) {
-      $value = $settings[$args['setting']];
-    } else {
-      $value = $this->blipper_widget_defaults[$args['setting']];
-    }
+    $value = false == $settings ? $this->blipper_widget_defaults[$args['setting']] : $settings[$args['setting']];
 
     ?>
       <input type="<?php echo $args['type']; ?>" id="<?php echo $args['id']; ?>" name="<?php echo $args['name']; ?>" placeholder="<?php echo $args['placeholder']; ?>" value="<?php echo $value; ?>" size="50">      
@@ -171,6 +178,7 @@ class wpbw_Settings {
     ?>
     <div class="wrap">
       <h2><?php echo __( 'Blipper Widget Settings', 'blipper-widget' ); ?></h2>
+      <script type="text/javascript">pause('inside the options page')</script>
       <?php
       if ( !current_user_can( 'manage_options' ) ) {
         wp_die( __( '', 'blipper-widget' ) );
@@ -181,7 +189,7 @@ class wpbw_Settings {
             // render a few hidden fields that tell WP which settings are going to be updated on this page:
             settings_fields( 'blipper-widget-settings' );
             // output all the sections and fields that have been added to the options page (with slug options-wp-blipper):
-            do_settings_sections( 'options-blipper-widget' );
+            do_settings_sections( 'blipper-widget' );
           ?>
           <?php submit_button(); ?>
         </form>
@@ -334,12 +342,12 @@ class wpbw_Settings {
 
     $client = null;
     try {
-      $client = new wpbw_Client (
+      $client = new blipper_widget_Client (
        $oauth_settings['client-id'],
        $oauth_settings['client-secret'],
        $oauth_settings['access-token']
       );
-    } catch ( wpbw_ApiResponseException $e ) {
+    } catch ( blipper_widget_ApiResponseException $e ) {
       add_settings_error( 
         'wp-blipper-settings-group',
         'invalid-oauth-credentials',
@@ -350,7 +358,7 @@ class wpbw_Settings {
       $user_profile = $client->get(
         'user/profile'
       );
-    } catch ( wpbw_ApiResponseException $e ) {
+    } catch ( blipper_widget_ApiResponseException $e ) {
       add_settings_error( 
         'wp-blipper-settings-group',
         'invalid-oauth-credentials',

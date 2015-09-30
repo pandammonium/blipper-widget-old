@@ -1,21 +1,21 @@
 <?php
 
-namespace wpbw_Blipfoto\wpbw_Api;
+namespace blipper_widget_Blipfoto\blipper_widget_Api;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
 use \ReflectionClass;
-use wpbw_Blipfoto\wpbw_Api\wpbw_File;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_ApiResponseException;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_OAuthException;
-use wpbw_Blipfoto\wpbw_Exceptions\wpbw_NetworkException;
-use wpbw_Blipfoto\wpbw_Traits\wpbw_Helper;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_File;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_NetworkException;
+use blipper_widget_Blipfoto\blipper_widget_Traits\blipper_widget_Helper;
 
-class wpbw_Client {
+class blipper_widget_Client {
 
-	use wpbw_Helper;
+	use blipper_widget_Helper;
 
 	protected $id;
 	protected $secret;
@@ -27,7 +27,7 @@ class wpbw_Client {
 
 	// Endpoint constants
 	const URI_API 			= 'https://api.polaroidblipfoto.com/4/';
-	const URI_AUTHORIZE 	= 'https://www.polaroidblipfoto.com/wpbw_OAuth/authorize/';
+	const URI_AUTHORIZE 	= 'https://www.polaroidblipfoto.com/blipper_widget_OAuth/authorize/';
 
 	// scope constants
 	const SCOPE_READ 		= 'read';
@@ -122,54 +122,54 @@ class wpbw_Client {
 	}
 
 	/**
-	 * Convenience method for creating a new wpbw_Request instance.
+	 * Convenience method for creating a new blipper_widget_Request instance.
 	 *
 	 * @param mixed
-	 * @return wpbw_Request
+	 * @return blipper_widget_Request
 	 */	
 	public function request() {
-		return new wpbw_Request($this);
+		return new blipper_widget_Request($this);
 	}
 
 	/**
-	 * Convenience method for creating a new wpbw_OAuth instance.
+	 * Convenience method for creating a new blipper_widget_OAuth instance.
 	 *
-	 * @return wpbw_OAuth
+	 * @return blipper_widget_OAuth
 	 */
 	public function OAuth() {
-		return new wpbw_OAuth($this);
+		return new blipper_widget_OAuth($this);
 	}
 
 	/**
-	 * Convenience method for creating and sending a new GET wpbw_Request.
+	 * Convenience method for creating and sending a new GET blipper_widget_Request.
 	 */
 	public function get() {
 		return $this->run('GET', func_get_args());
 	}
 
 	/**
-	 * Convenience method for creating and sending a new POST wpbw_Request.
+	 * Convenience method for creating and sending a new POST blipper_widget_Request.
 	 */
 	public function post() {
 		return $this->run('POST', func_get_args());
 	}
 
 	/**
-	 * Convenience method for creating and sending a new PUT wpbw_Request.
+	 * Convenience method for creating and sending a new PUT blipper_widget_Request.
 	 */
 	public function put() {
 		return $this->run('PUT', func_get_args());
 	}
 
 	/**
-	 * Convenience method for creating and sending a new DELETE wpbw_Request.
+	 * Convenience method for creating and sending a new DELETE blipper_widget_Request.
 	 */
 	public function delete() {
 		return $this->run('DELETE', func_get_args());
 	}
 
 	/**
-	 * Convenience method for sending a wpbw_Request and returning a response.
+	 * Convenience method for sending a blipper_widget_Request and returning a response.
 	 *
 	 * @return Response
 	 * @throws OAuthException|ApiResponseException
@@ -196,7 +196,7 @@ class wpbw_Client {
 	 */
 	protected function validateEndpoint($endpoint) {
 		if (!preg_match("/^https/", $endpoint)) {
-			throw new wpbw_NetworkException(sprintf('Invalid endpoint "%s" does not use the HTTPS protocol.', $endpoint), -1);
+			throw new blipper_widget_NetworkException(sprintf('Invalid endpoint "%s" does not use the HTTPS protocol.', $endpoint), -1);
 		}
 		return $endpoint;
 	}
