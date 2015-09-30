@@ -40,11 +40,7 @@ function blipper_widget_add_settings_link( $links ) {
   $links[] = '<a href="' .
     admin_url( 'options-general.php?page=blipper-widget' ) .
     '">' . __('Settings', 'blipper-widget') . '</a>';
-  if ( defined( 'WP_DEBUG' ) ) {
-    echo '<pre>';
-    var_export($links);
-    echo '</pre><br><pre>' . plugin_dir_path( __FILE__ ) . 'includes/class-settings.php</pre>';
-  }
+
   return $links;
 }
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'blipper_widget_add_settings_link' );
