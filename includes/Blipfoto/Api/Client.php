@@ -13,7 +13,7 @@ use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthExcept
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_NetworkException;
 use blipper_widget_Blipfoto\blipper_widget_Traits\blipper_widget_Helper;
 
-class blipper_widget_Client {
+class blipper_widget_client {
 
 	use blipper_widget_Helper;
 

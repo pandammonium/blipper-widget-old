@@ -16,7 +16,7 @@ namespace blipper_widget;
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
-use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
+use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_client;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
 
 /**
@@ -24,7 +24,7 @@ use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponse
  *
  * @since 0.0.2
  */
-class blipper_widget_Settings {
+class blipper_widget_settings {
 
 /**
   * @since    0.0.2
@@ -77,7 +77,7 @@ class blipper_widget_Settings {
     add_options_page( 
       __( 'Blipper Widget Settings', 'blipper-widget' ), // page title (not to be confused with page header)
       __( 'Blipper Widget', 'blipper-widget' ), // menu title
-      'manage_options', // capability req'd to access options page
+      'manage_options', // capability required to access options page
       'blipper-widget', // menu slug
       array( &$this, 'blipper_widget_options_page' ) // callback function
     );
@@ -342,7 +342,7 @@ class blipper_widget_Settings {
 
     $client = null;
     try {
-      $client = new blipper_widget_Client (
+      $client = new blipper_widget_client (
        $oauth_settings['client-id'],
        $oauth_settings['client-secret'],
        $oauth_settings['access-token']
@@ -362,10 +362,9 @@ class blipper_widget_Settings {
       add_settings_error( 
         'wp-blipper-settings-group',
         'invalid-oauth-credentials',
-        __( 'Unable to connect to Polaroid|Blipfoto.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your OAuth credentials at Polaroid|Blipfoto</a> and pasted them into the settings below.', 'blipper-widget' )
+        __( 'Unable to get your Polaroid|Blipfoto user profile.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your OAuth credentials at Polaroid|Blipfoto</a> and pasted them into the settings below.<br>If you have refreshed or changed your Polaroid|Blipfoto OAuth credentials, you also need to update them below.<br>If you have entered the values correctly, try <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">refreshing your credentials</a>.', 'blipper-widget' )
       );
     }
-
   }
 
   /**

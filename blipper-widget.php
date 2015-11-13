@@ -27,7 +27,7 @@ use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_InvalidResponseException;
-use blipper_widget\blipper_widget_Settings;
+use blipper_widget\blipper_widget_settings;
 
 // Register the WP Blipper widget
 function register_blipper_widget() {
@@ -45,11 +45,25 @@ function blipper_widget_add_settings_link( $links ) {
 }
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'blipper_widget_add_settings_link' );
 
-// Error handling
-function blipper_exception( $e ) {
+// Check the Polaroid|Blipfoto OAuth settings have been set, otherwise display a message to the user.
+function blipper_widget_settings_check() {
+  $api = get_option('blipper-widget-settings-oauth');
+  if ( !empty( $api ) ) {
+    $apistring = implode('',$api);
+  }
+  $optionslink = 'options-general.php?page=blipper-widget';
+  if ( empty( $apistring ) ) {
+    $msgString = __('Please update <a href="%1$s">your settings for Blipper Widget</a>.','blipper-widget');
+    echo "<div class='error'><p>".sprintf($msgString, $optionslink)."</p></div>";
+  }
+};
+//add_action( 'admin_notices', 'blipper_widget_settings_check' );
+
+// Generic error handling
+function blipper_widget_exception( $e ) {
   echo '<p>An unexpected error has occurred.  ' . $e->getMessage() . '  Please try again later.</p>';
 }
-set_exception_handler('blipper_exception');
+set_exception_handler('blipper_widget_exception');
 
 
 class Blipper_Widget extends WP_Widget {
@@ -90,7 +104,7 @@ class Blipper_Widget extends WP_Widget {
 
     if ( is_active_widget( false, false, $this->id_base, true ) ){
       $this->load_dependencies();
-      $this->settings = new blipper_widget_Settings();
+      $this->settings = new blipper_widget_settings();
     }
   }
 
@@ -108,8 +122,8 @@ class Blipper_Widget extends WP_Widget {
       echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
     }
 
-    if ( $this->blipper_create_blipfoto_client( $instance ) ) {
-      $this->blipper_display_blip( $instance );
+    if ( $this->blipper_widget_create_blipfoto_client( $instance ) ) {
+      $this->blipper_widget_display_blip( $instance );
     }
 
     echo $args['after_widget'];
@@ -124,8 +138,8 @@ class Blipper_Widget extends WP_Widget {
   */
   public function form( $instance ) {
 
-    $settings = $this->blipper_get_display_values( $instance );
-    $this->display_form( $settings );
+    $settings = $this->blipper_widget_get_display_values( $instance );
+    $this->blipper_widget_display_form( $settings );
 
   }
 
@@ -140,10 +154,10 @@ class Blipper_Widget extends WP_Widget {
   */
   public function update( $new_instance, $old_instance ) {
 
-    $instance['title']                  = $this->blipper_validate( $new_instance, $old_instance, 'title' );
-    $instance['display-journal-title']  = $this->blipper_validate( $new_instance, $old_instance, 'display-journal-title' );
-    $instance['add-link-to-blip']       = $this->blipper_validate( $new_instance, $old_instance, 'add-link-to-blip' );
-    $instance['powered-by']             = $this->blipper_validate( $new_instance, $old_instance, 'powered-by' );
+    $instance['title']                  = $this->blipper_widget_validate( $new_instance, $old_instance, 'title' );
+    $instance['display-journal-title']  = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-journal-title' );
+    $instance['add-link-to-blip']       = $this->blipper_widget_validate( $new_instance, $old_instance, 'add-link-to-blip' );
+    $instance['powered-by']             = $this->blipper_widget_validate( $new_instance, $old_instance, 'powered-by' );
 
     return $instance;
 
@@ -162,7 +176,7 @@ class Blipper_Widget extends WP_Widget {
   * @var       string      $setting_field     The setting to validate.
   * @return    string      $instance          The validated setting.
   */
-  private function blipper_validate( $new_instance, $old_instance, $setting_field ) {
+  private function blipper_widget_validate( $new_instance, $old_instance, $setting_field ) {
 
     $instance = $this->default_setting_values[$setting_field];
     $new_instance[$setting_field] = esc_attr( $new_instance[$setting_field] );
@@ -197,7 +211,7 @@ class Blipper_Widget extends WP_Widget {
   * @var       array       $instance             The widget settings saved in the database.
   * @return    array                             The widget settings saved in the database, unless blank, in which case, the defaults are returned.  The title is returned regardless of whether it is empty or not.
   */
-  private function blipper_get_display_values( $instance ) {
+  private function blipper_widget_get_display_values( $instance ) {
 
     return array(
       'title'                 => ! empty( $instance['title'] ) ? __( $instance['title'], 'blipper-widget' ) : __( $this->default_setting_values['title'], 'blipper-widget' ),
@@ -267,7 +281,7 @@ class Blipper_Widget extends WP_Widget {
   * @access    private
   * @param     array         $instance       The settings just saved in the database.
   */
-  private function blipper_create_blipfoto_client( $instance ) {
+  private function blipper_widget_create_blipfoto_client( $instance ) {
 
     $client_ok = false;
 
@@ -369,7 +383,7 @@ class Blipper_Widget extends WP_Widget {
   * @access    private
   * @param     array         $instance       The settings saved in the database
   */
-  private function blipper_display_blip( $instance ) {
+  private function blipper_widget_display_blip( $instance ) {
 
     $user_profile = null;
     $continue = false;
@@ -531,36 +545,32 @@ class Blipper_Widget extends WP_Widget {
     if ( $continue ) {
       $continue = false;
       $date = date( get_option( 'date_format' ), $blip['date_stamp'] );
+
+      echo '<figure style="border-width:10;border-style:solid;border-color:#333333">';
       if ( $instance['add-link-to-blip'] ) {
-        echo '
-          <a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">
-        ';
+        echo '<a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
-      echo '
-        <figure style="border-width:10;border-style:solid;border-color:#333333">
-              <img 
-              
-              src="' . $image_url . '" 
-              // alt="" 
-              // height="" 
-              // width="">
-            <figcaption style="padding:5px">
-              ' . $date . '<br>' . $blip['title'] . '
-            </figcaption>
-          </figure>
-        ';
+      echo '<img src="' . $image_url . '" 
+        // alt="" 
+        // height="" 
+        // width="">
+      ';
+      echo '<figcaption style="padding-top:7px">';
+      echo $date . '<br>' . $blip['title'];
+      echo '</figcaption>';
       if ( $instance['add-link-to-blip'] ) {
-        echo '
-          </a>
-        ';
+        echo '</a>';
       }
+      echo '<figcaption style="padding-top:7px">';
       if ( $instance['display-journal-title'] && $instance['powered-by'] ) {
-        echo '<p style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a><br>Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+        echo '<p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a>, powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
       } else if ( $instance['display-journal-title'] ) {
-        echo '<p style="font-size:70%;margin-top:1ex">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a></p>';
+        echo '<p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a></p>';
       } else if ($instance['powered-by'] ) {
-        echo '<p style="font-size:70%;margin-top:1ex">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+        echo '<p style="font-size:70%">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
       }
+      echo '</figcaption></figure>';
+
     }
   }
 
@@ -571,7 +581,7 @@ class Blipper_Widget extends WP_Widget {
   * @access    private
   * @param     array         $instance       The settings saved in the database
   */
-  private function display_form( $instance ) {
+  private function blipper_widget_display_form( $instance ) {
 
     $oauth_settings = $this->settings->blipper_widget_get_settings();
 
