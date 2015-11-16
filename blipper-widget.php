@@ -626,7 +626,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Include link to your latest blip', 'add-link-to-blip' ) ?>
         </label>
       </p>
-      <p class="description">Tick the box to make the widget link back to the corresponding blip in your journal.  Leave it unticked if you do want to include a link back to your latest blip.</p>
+      <p class="description">Tick the box to make the widget link back to the corresponding blip in your journal.  Leave it unticked if you do want to include a link back to your latest blip.  The link will cover the image, and also the date and title, if displayed.</p>
 
       <p>
         <input
