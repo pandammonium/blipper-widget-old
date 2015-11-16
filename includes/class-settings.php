@@ -186,9 +186,9 @@ class blipper_widget_settings {
         ?>
         <form action="options.php" method="POST">
           <?php
-            // render a few hidden fields that tell WP which settings are going to be updated on this page:
+            // Render a few hidden fields that tell WP which settings are going to be updated on this page:
             settings_fields( 'blipper-widget-settings' );
-            // output all the sections and fields that have been added to the options page (with slug options-wp-blipper):
+            // Output all the sections and fields that have been added to the options page (with slug options-wp-blipper):
             do_settings_sections( 'blipper-widget' );
           ?>
           <?php submit_button(); ?>
@@ -221,7 +221,7 @@ class blipper_widget_settings {
       add_settings_error(
         'wp-blipper-settings-group', 
         'inavlid-input', 
-        __( 'Something has gone wrong.  Please check the settings.', 'blipper-widget' )
+        __( 'Something has gone wrong.  Please check the OAuth settings.', 'blipper-widget' )
       );
 
     } else {
@@ -301,7 +301,7 @@ class blipper_widget_settings {
 
     ?>
 
-      <p>You need to authorise access to your Polaroid|Blipfoto account before you can use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  The instructions below tell you how to authorise access and how to revoke access.</p>
+      <p>You need to authorise access to your Polaroid|Blipfoto account before you can use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  Just follow the instructions below to authorise access and to revoke access.</p>
       <h4>How to authorise your Polaroid|Blipfoto account</h4>
       <p>To allow WordPress to access your Polaroid|Blipfoto account, you need to carry out a few simple steps:</p>
       <ol>
@@ -354,6 +354,7 @@ class blipper_widget_settings {
         __( 'Unable to connect to Polaroid|Blipfoto.  Please check the OAuth settings.', 'blipper-widget' )
       );
     }
+    $user_profile = null;
     try {
       $user_profile = $client->get(
         'user/profile'
@@ -362,7 +363,7 @@ class blipper_widget_settings {
       add_settings_error( 
         'wp-blipper-settings-group',
         'invalid-oauth-credentials',
-        __( 'Unable to get your Polaroid|Blipfoto user profile.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your OAuth credentials at Polaroid|Blipfoto</a> and pasted them into the settings below.<br>If you have refreshed or changed your Polaroid|Blipfoto OAuth credentials, you also need to update them below.<br>If you have entered the values correctly, try <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">refreshing your credentials</a>.', 'blipper-widget' )
+        __( 'Unable to connect to your Polaroid|Blipfoto user profile.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your OAuth credentials at Polaroid|Blipfoto</a> and pasted them into the settings below.<br>If you have refreshed or changed your Polaroid|Blipfoto OAuth credentials, you also need to update them below.<br>If you have entered the values correctly, try <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">refreshing your credentials</a>.', 'blipper-widget' )
       );
     }
   }

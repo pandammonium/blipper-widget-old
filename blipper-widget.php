@@ -35,10 +35,10 @@ function register_blipper_widget() {
 }
 add_action( 'widgets_init', 'register_blipper_widget' ); // function to load WP Blipper
 
-// Add a link to the Blipper Widget Settings page from the plugins list.
+// Add a link to the Blipper Widget Settings page from the installed plugins list.
 function blipper_widget_add_settings_link( $links ) {
   $links[] = '<a href="' .
-    admin_url( 'options-general.php?page=blipper-widget' ) .
+    esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) .
     '">' . __('Settings', 'blipper-widget') . '</a>';
 
   return $links;
@@ -49,12 +49,12 @@ add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'blipper_widget_
 function blipper_widget_settings_check() {
   $api = get_option('blipper-widget-settings-oauth');
   if ( !empty( $api ) ) {
-    $apistring = implode('',$api);
+    $apistring = implode( '', $api );
   }
-  $optionslink = 'options-general.php?page=blipper-widget';
   if ( empty( $apistring ) ) {
+    $optionslink = 'options-general.php?page=blipper-widget';
     $msgString = __('Please update <a href="%1$s">your settings for Blipper Widget</a>.','blipper-widget');
-    echo "<div class='error'><p>".sprintf($msgString, $optionslink)."</p></div>";
+    echo "<div class='error'><p>" . sprintf( $msgString, $optionslink ) . "</p></div>";
   }
 };
 //add_action( 'admin_notices', 'blipper_widget_settings_check' );
@@ -65,6 +65,7 @@ function blipper_widget_exception( $e ) {
 }
 set_exception_handler('blipper_widget_exception');
 
+// -------------------------------------------------------------------------- //
 
 class Blipper_Widget extends WP_Widget {
 
@@ -102,11 +103,13 @@ class Blipper_Widget extends WP_Widget {
     );
     parent::__construct( 'blipper_widget', 'Blipper Widget', $params );
 
-    if ( is_active_widget( false, false, $this->id_base, true ) ){
-      $this->load_dependencies();
-      $this->settings = new blipper_widget_settings();
-    }
+    // Not using is_active_widget here because that function is only supposed to
+    // return true if the widget is on a sidebar.  The widget isn't necessarily 
+    // on a sidebar when the OAuth access settings are set.
+    $this->load_dependencies();
+    $this->settings = new blipper_widget_settings();
   }
+
 
 /**
   * Render the widget on the WP site.  This is the front-end of the widget.
