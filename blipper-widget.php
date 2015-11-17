@@ -2,21 +2,22 @@
 
 /**
   *
-  * @link              http://pandammonium.org/dev/wp-blipper-widget/
-  * @since             0.0.1
-  * @package           Blipper_Widget
+  * @link               http://pandammonium.org/dev/wp-blipper-widget/
+  * @since              0.0.1
+  * @package            Blipper_Widget
   *
   * @wordpress-plugin
-  * Plugin Name:       Blipper Widget
-  * Plugin URI:        http://pandammonium.org/dev/wp-blipper-widget/
-  * Description:       Display your latest blip in a widget.  Requires a Polaroid|Blipfoto account.
-  * Version:           0.0.2
-  * Author:            Caity Ross
-  * Author URI:        http://pandammonium.org/
-  * License:           GPL-2.0+
-  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
-  * Text Domain:       blipper-widget
-  * Domain Path:       /languages
+  * Plugin Name:        Blipper Widget
+  * Plugin URI:         http://pandammonium.org/dev/wp-blipper-widget/
+  * Description:        Display your latest blip in a widget.  Requires a
+  *                       Polaroid|Blipfoto account.
+  * Version:            0.0.2
+  * Author:             Caity Ross
+  * Author URI:         http://pandammonium.org/
+  * License:            GPL-2.0+
+  * License URI:        http://www.gnu.org/licenses/gpl-2.0.txt
+  * Text Domain:        blipper-widget
+  * Domain Path:        /languages
   */
 
 // If this file is called directly, abort.
@@ -65,14 +66,20 @@ function blipper_widget_exception( $e ) {
 }
 set_exception_handler('blipper_widget_exception');
 
-// -------------------------------------------------------------------------- //
+// -- Blipper Widget -------------------------------------------------------- //
 
+/**
+ * Widget settings.
+ *
+ * @since 0.0.2
+ */
 class Blipper_Widget extends WP_Widget {
 
 /**
   * @since    0.0.1
   * @access   private
-  * @var      array     $default_setting_values       The widget's default settings
+  * @var      array         $default_setting_values   The widget's default
+  *                                                     settings
   */
   private $default_setting_values = array (
     'title'                 => 'My latest blip',
@@ -84,7 +91,7 @@ class Blipper_Widget extends WP_Widget {
 /**
   * @since    0.0.1
   * @access   private
-  * @var      blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client    $client    The Polaroid|Blipfoto client
+  * @var      blipper_widget_Client    $client     The Polaroid|Blipfoto client
   */
   private $client;
 
@@ -134,33 +141,44 @@ class Blipper_Widget extends WP_Widget {
   }
 
 /**
-  * Render the form used in the widget admin settings panel or the WordPress customiser.  This is the back-end of the widget.
+  * Render the form used in the widget admin settings panel or the WordPress
+  * customiser.  This is the back-end of the widget.
   *
   * @since     0.0.1
   * @access    public
   */
   public function form( $instance ) {
 
-    $settings = $this->blipper_widget_get_display_values( $instance );
-    $this->blipper_widget_display_form( $settings );
+    $settings_array = $this->blipper_widget_get_display_values( $instance );
+    $this->blipper_widget_display_form( $settings_array );
 
   }
 
 /**
-  * Update the widget settings that were set using the form in the admin panel/customiser.
+  * Update the widget settings that were set using the form in the admin
+  * panel/customiser.
   * 
   * @since     0.0.1
   * @access    public
-  * @param     array     $new_instance     The settings the user wants to save in the database
-  * @param     array     $old_instance     The settings already saved in the database
-  * @return    array     $instance         The validated settings based on the user's input to be saved in the database.
+  * @param     array     $new_instance      The settings the user wants to save
+  *                                           in the database
+  * @param     array     $old_instance      The settings already saved in the
+  *                                           database
+  * @return    array     $instance          The validated settings based on the
+  *                                           user's input to be saved in the
+  *                                           database
   */
   public function update( $new_instance, $old_instance ) {
 
-    $instance['title']                  = $this->blipper_widget_validate( $new_instance, $old_instance, 'title' );
-    $instance['display-journal-title']  = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-journal-title' );
-    $instance['add-link-to-blip']       = $this->blipper_widget_validate( $new_instance, $old_instance, 'add-link-to-blip' );
-    $instance['powered-by']             = $this->blipper_widget_validate( $new_instance, $old_instance, 'powered-by' );
+    $title                  = $this->blipper_widget_validate( $new_instance, $old_instance, 'title' );
+    $display_journal_title  = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-journal-title' );
+    $add_link_to_blip       = $this->blipper_widget_validate( $new_instance, $old_instance, 'add-link-to-blip' );
+    $powered_by             = $this->blipper_widget_validate( $new_instance, $old_instance, 'powered-by' );
+
+    $instance['title']                  = $title;
+    $instance['display-journal-title']  = $display_journal_title;
+    $instance['add-link-to-blip']       = $add_link_to_blip;
+    $instance['powered-by']             = $powered_by;
 
     return $instance;
 
@@ -168,14 +186,17 @@ class Blipper_Widget extends WP_Widget {
 
 /**
   * Validate the input.
-  * Make sure the input comprises only printable/alphanumeric (depending on the field) characters; otherwise, return an empty string/the default value.
+  * Make sure the input comprises only printable/alphanumeric (depending on the
+  * field) characters; otherwise, return an empty string/the default value.
   *
   * This might become a loop at some point.
   *
   * @since     0.0.1
   * @access    private
-  * @var       array       $new_instance      An array containing the settings that the user wants to set.
-  * @var       array       $old_instance      An array containing the settings that are in place now.
+  * @var       array       $new_instance      An array containing the settings
+  *                                             that the user wants to set.
+  * @var       array       $old_instance      An array containing the settings
+  *                                             that are in place now.
   * @var       string      $setting_field     The setting to validate.
   * @return    string      $instance          The validated setting.
   */
@@ -211,16 +232,26 @@ class Blipper_Widget extends WP_Widget {
   *
   * @since     0.0.1
   * @access    private
-  * @var       array       $instance             The widget settings saved in the database.
-  * @return    array                             The widget settings saved in the database, unless blank, in which case, the defaults are returned.  The title is returned regardless of whether it is empty or not.
+  * @var       array       $instance            The widget settings saved in the
+  *                                               database.
+  * @return    array                            The widget settings saved in the
+  *                                               database
   */
   private function blipper_widget_get_display_values( $instance ) {
 
+    // Allow the title field to be blank, but if it hasn't been set yet
+    // (because the widget has only just been added to the widget-enabled area,
+    // for example), set it to the default.
+    $title = ! isset( $instance['title'] ) ? $this->default_setting_values['title'] : __( $instance['title'], 'blipper-widget' );
+    $display_journal_title = empty( $instance['display-journal-title'] ) ? $this->default_setting_values['display-journal-title'] : ( $instance['display-journal-title'] ? 'show' : 'hide' );
+    $add_link_to_blip = empty( $instance['add-link-to-blip'] ) ? $this->default_setting_values['add-link-to-blip'] : ( $instance['add-link-to-blip'] ? 'show' : 'hide' );
+    $powered_by = empty( $instance['powered-by'] ) ? $this->default_setting_values['powered-by'] : ( $instance['powered-by'] ? 'show' : 'hide' );
+
     return array(
-      'title'                 => ! empty( $instance['title'] ) ? __( $instance['title'], 'blipper-widget' ) : __( $this->default_setting_values['title'], 'blipper-widget' ),
-      'display-journal-title' => $instance['display-journal-title'] ? 'show' : 'hide',
-      'add-link-to-blip'      => $instance['add-link-to-blip'] ? 'show' : 'hide',
-      'powered-by'            => $instance['powered-by'] ? 'show' : 'hide',
+      'title'                 => $title,
+      'display-journal-title' => $display_journal_title,
+      'add-link-to-blip'      => $add_link_to_blip,
+      'powered-by'            => $powered_by,
     );
 
   }
@@ -278,17 +309,20 @@ class Blipper_Widget extends WP_Widget {
   }
 
 /**
-  * Construct an instance of the Polaroid|Blipfoto client and do something constructive with it..
+  * Construct an instance of the Polaroid|Blipfoto client and do something
+  *   constructive with it..
   * 
   * @since     0.0.1
   * @access    private
-  * @param     array         $instance       The settings just saved in the database.
+  * @param     array         $instance      The settings just saved in the
+  *                                           database.
   */
   private function blipper_widget_create_blipfoto_client( $instance ) {
 
     $client_ok = false;
 
-    // Create Polaroid|Blipfoto client if it hasn't already been done yet; otherwise just change the settings.
+    // Create Polaroid|Blipfoto client if it hasn't already been done yet;
+    // otherwise just change the settings.
     if ( !empty( $this->client ) || isset( $this->client ) ) {
 
       try {
@@ -300,9 +334,7 @@ class Blipper_Widget extends WP_Widget {
              empty( $oauth_settings['access-token'] )
           ) {
 
-          if ( current_user_can( 'manage_options' ) ) {
-            throw new blipper_widget_OAuthException( 'You need to set your OAuth Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.</p>' );
-          }
+          throw new blipper_widget_OAuthException( 'You need to set your OAuth Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.</p>' );
 
         } else {
 
@@ -338,9 +370,7 @@ class Blipper_Widget extends WP_Widget {
            empty( $oauth_settings['access-token'] )
         ) {
 
-        if ( current_user_can( 'manage_options' ) ) {
-          throw new blipper_widget_OAuthException( 'You need to set your OAuth Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.</p>' );
-        }
+        throw new blipper_widget_OAuthException( 'You need to set your OAuth Polaroid|Blipfoto credentials on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.</p>' );
 
       } else {
 
@@ -437,7 +467,8 @@ class Blipper_Widget extends WP_Widget {
       try {
         // A page index of zero gives the most recent page of blips.
         // A page size of one means there will be only one blip on that page.
-        // Together, these ensure that the most recent blip is obtained — which is exactly what we want to display.
+        // Together, these ensure that the most recent blip is obtained — which
+        // is exactly what we want to display.
         $journal = $this->client->get(
           'entries/journal',
           array(
@@ -520,11 +551,11 @@ class Blipper_Widget extends WP_Widget {
     }
     if ( $continue ) {
       $continue = false;
-      // Polaroid|Blipfoto has different quality images, each with its own
-      // URL.  Access is currently limited to standard, but I've
-      // optimistically allowed for higher quality images to be selected
-      // if they're present.  The lowest quality image is obtained if the
-      // standard image isn't available.
+      // Polaroid|Blipfoto has different quality images, each with its own URL.
+      // Access is currently limited to standard, but I've optimistically
+      // allowed for higher quality images to be selected if they're present.
+      // The lowest quality image is obtained if the standard image isn't
+      // available.
       $image_url = null;
       try {
         if ( null !== $details->data( 'image_urls.original' ) ) {
@@ -554,23 +585,21 @@ class Blipper_Widget extends WP_Widget {
         echo '<a href="https://www.polaroidblipfoto.com/entry//' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
       echo '<img src="' . $image_url . '" 
-        // alt="" 
-        // height="" 
-        // width="">
+        alt="' . $blip['title'] . '" 
+        height="auto" 
+        width="auto">
       ';
       echo '<figcaption style="padding-top:7px">';
       echo $date . '<br>' . $blip['title'];
-      echo '</figcaption>';
       if ( $instance['add-link-to-blip'] ) {
         echo '</a>';
       }
-      echo '<figcaption style="padding-top:7px">';
       if ( $instance['display-journal-title'] && $instance['powered-by'] ) {
-        echo '<p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a>, powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+        echo '<footer><p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a>, powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p></footer>';
       } else if ( $instance['display-journal-title'] ) {
-        echo '<p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a></p>';
+        echo '<footer><p style="font-size:70%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow">' . $user_settings->data( 'journal_title' ) . '</a></p></footer>';
       } else if ($instance['powered-by'] ) {
-        echo '<p style="font-size:70%">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p>';
+        echo '<footer><p style="font-size:70%">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow">Polaroid|Blipfoto</a></p></footer>';
       }
       echo '</figcaption></figure>';
 
@@ -611,7 +640,7 @@ class Blipper_Widget extends WP_Widget {
           value="<?php echo esc_attr( $instance['title'] ); ?>"
         >
       </p>
-      <p class="description">Leave the title field blank if you don't want to display a title.</p>
+      <p class="description">Leave the widget title field blank if you don't want to display a title.  The default widget title is <i><?php _e( $this->default_setting_values['title'] ); ?></i>.</p>
 
       <p>
         <input
@@ -626,7 +655,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Include link to your latest blip', 'add-link-to-blip' ) ?>
         </label>
       </p>
-      <p class="description">Tick the box to make the widget link back to the corresponding blip in your journal.  Leave it unticked if you do want to include a link back to your latest blip.  The link will cover the image, and also the date and title, if displayed.</p>
+      <p class="description">Tick the box to make the widget link back to the corresponding blip in your journal.  Leave it unticked if you don't want to include a link back to your latest blip.  The link will cover the image, and also the date and title, if displayed.  The box is unticked by default.</p>
 
       <p>
         <input
@@ -641,7 +670,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Display journal title and link', 'display-journal-title' ) ?>
         </label>
       </p>
-      <p class="description">Tick the box to show the name of your journal with a link back to your Polaroid|Blipfoto journal.  Leave it unticked if you do want to show the name of your journal or have a link back to your journal.</p>
+      <p class="description">Tick the box to show the name of your journal with a link back to your Polaroid|Blipfoto journal.  Leave it unticked if you don't want to show the name of your journal and link back to your journal.  The box is unticked by default.</p>
 
       <p>
         <input
@@ -656,7 +685,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Include a \'powered by\' link', 'powered-by' ) ?>
         </label>
       </p>
-      <p class="description">Tick the box to include a 'powered by' link back to Polaroid|Blipfoto.  Leave it unticked if you do want to include a 'powered by'-style link.</p>
+      <p class="description">Tick the box to include a 'powered by' link back to Polaroid|Blipfoto.  Leave it unticked if you don't want to include a 'powered by'-style link.  The box is unticked by default.</p>
 
       <?php
     }

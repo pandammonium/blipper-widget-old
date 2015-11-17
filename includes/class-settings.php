@@ -19,6 +19,8 @@ defined( 'WPINC' ) or die();
 use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_client;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
 
+// -- Blipper Widget Settings ----------------------------------------------- //
+
 /**
  * Widget settings.
  *
@@ -29,18 +31,19 @@ class blipper_widget_settings {
 /**
   * @since    0.0.2
   * @access   private
-  * @var      array     $blipper_widget_defaults       The widget's default settings
+  * @var      array    $blipper_widget_defaults   The widget's default settings
   */
   private $blipper_widget_defaults = array(
-      'client-id'     => '',
-      'client-secret' => '',
-      'access-token'  => ''
+      'client-id'             => '',
+      'client-secret'         => '',
+      'access-token'          => ''
     );
 
 /**
   * @since    0.0.2
   * @access   private
-  * @var      array     $blipper_widget_settings       The widget's user-defined settings
+  * @var      array    $blipper_widget_settings   The widget's user-defined
+  *                                                 settings
   */
   private $blipper_widget_settings;
 
@@ -54,8 +57,8 @@ class blipper_widget_settings {
 
     add_action( 'admin_menu', array( &$this, 'blipper_widget_admin_menu' ) );
     // Ensure the admin page is initialised only when needed:
-      // Not calling this results in repeated error messages, if error messages are displayed.
-      // Repeated error messages look pants.
+    // Not calling this results in repeated error messages, if error messages
+    // are displayed.  Repeated error messages look pants.
     if ( ! empty ( $GLOBALS['pagenow'] )
       and ( 'options-general.php' === $GLOBALS['pagenow']
       or 'options.php' === $GLOBALS['pagenow']
@@ -186,9 +189,11 @@ class blipper_widget_settings {
         ?>
         <form action="options.php" method="POST">
           <?php
-            // Render a few hidden fields that tell WP which settings are going to be updated on this page:
+            // Render a few hidden fields that tell WP which settings are going
+            // to be updated on this page:
             settings_fields( 'blipper-widget-settings' );
-            // Output all the sections and fields that have been added to the options page (with slug options-wp-blipper):
+            // Output all the sections and fields that have been added to the
+            // options page (with slug options-wp-blipper):
             do_settings_sections( 'blipper-widget' );
           ?>
           <?php submit_button(); ?>
@@ -203,14 +208,16 @@ class blipper_widget_settings {
 
 /**
   * Validate the input.
-  * Make sure the input comprises only printable/alphanumeric (depending on the field) characters; otherwise, return an empty string/the default value.
+  * Make sure the input comprises only printable/alphanumeric (depending on the
+  * field) characters; otherwise, return an empty string/the default value.
   *
   * This might become a loop at some point.
   *
   * @since     0.0.2
   * @access    public
-  * @var       array       $input               An array containing the settings that the user wants to set.
-  * @return    string      $output               The validated setting.
+  * @var       array         $input             An array containing the settings
+  *                                               that the user wants to set.
+  * @return    string        $output            The validated setting.
   */
   public function blipper_widget_oauth_validate( $input ) {
 
@@ -322,7 +329,7 @@ class blipper_widget_settings {
     <ol>
       <li>Go to <a href="https://www.polaroidblipfoto.com/settings/apps" rel="nofollow">your Polaroid|Blipfoto app settings</a>.</li>
       <li>Select the app whose access you want to revoke (the one you created using the above instructions).</li>
-      <li>Press the <i>Save changes</i> button.</li>
+      <li>Press the <i>Save Changes</i> button.</li>
     </ol>
     <?php
 
@@ -374,7 +381,7 @@ class blipper_widget_settings {
    * @since     0.0.2
    * @access    public
    * @return    string    The string used as the key in the database, which
-   *                      stores the widget's OAuth settings.
+   *                        stores the widget's OAuth settings.
    */
   public function blipper_widget_settings_have_been_set() {
 
@@ -402,7 +409,7 @@ class blipper_widget_settings {
    * @since     0.0.2
    * @access    public
    * @return    string    The string used as the key in the database, which
-   *                      stores the widget's OAuth settings.
+   *                        stores the widget's OAuth settings.
    */
   public function blipper_widget_get_settings_db_name() {
 
@@ -410,5 +417,6 @@ class blipper_widget_settings {
 
   }
 
+// ---- Widget form settings ------------------------------------------------ //
 
 }
