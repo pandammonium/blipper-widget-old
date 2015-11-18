@@ -3,11 +3,11 @@
 /**
  * Widget settings.
  *
- * These settings are set from the WP Blipper Settings page, as opposed to on
- * the back-end widget form.  They are settings that are unlikely to be changed
- * after they have been set.  The settings on the back-end form of the widget
- * are more to do with the appearance of the front-end widget.  Therefore, it
- * makes sense to keep them separate.
+ * These settings are set from the Blipper Widhet settings page, as opposed to
+ * on the back-end widget form.  They are settings, such as OAuth credentials,
+ * that are unlikely to be changed after they have been set.  The settings on
+ * the back-end form of the widget are more to do with the appearance of the
+ * front-end widget.  Therefore, it makes sense to keep them separate.
  */
 
 namespace blipper_widget;
@@ -18,6 +18,7 @@ defined( 'WPINC' ) or die();
 
 use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_client;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
 
 // -- Blipper Widget Settings ----------------------------------------------- //
 
@@ -34,9 +35,10 @@ class blipper_widget_settings {
   * @var      array    $blipper_widget_defaults   The widget's default settings
   */
   private $blipper_widget_defaults = array(
-      'client-id'             => '',
-      'client-secret'         => '',
-      'access-token'          => ''
+      'username'              => '',
+      /*'client-id'             => null,
+      'client-secret'         => null,*/
+      'access-token'          => '',
     );
 
 /**
@@ -45,7 +47,7 @@ class blipper_widget_settings {
   * @var      array    $blipper_widget_settings   The widget's user-defined
   *                                                 settings
   */
-  private $blipper_widget_settings;
+  // private $blipper_widget_settings;
 
 /**
   * Construct an instance of the settings.
@@ -62,6 +64,7 @@ class blipper_widget_settings {
     if ( ! empty ( $GLOBALS['pagenow'] )
       and ( 'options-general.php' === $GLOBALS['pagenow']
       or 'options.php' === $GLOBALS['pagenow']
+      or 'options-general/php?page=blipper-widget'  === $GLOBALS['pagenow']
       )
     ) {
       add_action( 'admin_init', array( &$this, 'blipper_widget_admin_init' ) );
@@ -78,16 +81,21 @@ class blipper_widget_settings {
   public function blipper_widget_admin_menu() {
 
     add_options_page( 
-      __( 'Blipper Widget Settings', 'blipper-widget' ), // page title (not to be confused with page header)
-      __( 'Blipper Widget', 'blipper-widget' ), // menu title
-      'manage_options', // capability required to access options page
-      'blipper-widget', // menu slug
-      array( &$this, 'blipper_widget_options_page' ) // callback function
+      // page title (not to be confused with page header):
+      __( 'Blipper Widget Settings', 'blipper-widget' ),
+      // menu title:
+      __( 'Blipper Widget', 'blipper-widget' ),
+      // capability required to access options page:
+      'manage_options',
+      // menu slug:
+      'blipper-widget',
+      // callback function:
+      array( &$this, 'blipper_widget_options_page' )
     );
   }
 
 /**
-  * Set up the settings form on the settings page.
+  * Set up the settings form on the Blipper Widget settings page.
   * 
   * @since     0.0.2
   * @access    public
@@ -95,52 +103,58 @@ class blipper_widget_settings {
   public function blipper_widget_admin_init() {
 
     register_setting(
-      'blipper-widget-settings', // option group
-      'blipper-widget-settings-oauth', // option name
-      array( &$this, 'blipper_widget_oauth_validate' ) // callback function to validate input
+      // option group:
+      'blipper-widget-settings',
+      // option name:
+      'blipper-widget-settings-oauth',
+      // callback function to validate input
+      array( &$this, 'blipper_widget_oauth_validate' )
     );
 
     add_settings_section(
-      'blipper-widget-oauth', // section id
-      __( 'Polaroid|Blipfoto OAuth 2.0 Settings', 'blipper-widget' ), // section title
-      array( &$this, 'blipper_widget_oauth_instructions'), // section callback function to render information and instructions about this section
-      'blipper-widget' // page id (i.e. menu slug)
+      // section id:
+      'blipper-widget-oauth',
+      // section title:
+      __( 'Polaroid|Blipfoto OAuth 2.0 Settings', 'blipper-widget' ),
+      // section callback function to render information and instructions about
+      // this section:
+      array( &$this, 'blipper_widget_oauth_instructions'),
+      // page id (i.e. menu slug):
+      'blipper-widget'
     );
 
     add_settings_field(
-      'blipper-widget-oauth-client-id', // field id
-      __( 'Polaroid|Blipfoto Client ID', 'blipper-widget' ), // field title
-      array( &$this, 'wp_blipper_field_render'), //callback function to render the field on the form
-      'blipper-widget', // page id (i.e. menu slug)
-      'blipper-widget-oauth', // section id the field belongs to
-      array(
-        'type'        => 'text',
-        'name'        => 'blipper-widget-settings-oauth[client-id]',
-        'placeholder' => __( 'Enter your Polaroid|Blipfoto client ID here', 'blipper-widget' ),
-        'id'          => 'blipper-widget-input-client-id',
-        'setting'     => 'client-id',
-      ) // arguments for the callback function
-    );
-    add_settings_field(
-      'blipper-widget-oauth-client-secret',
-      __( 'Polaroid|Blipfoto Client Secret', 'blipper-widget' ),
+      // field id:
+      'blipper-widget-username',
+      // field title:
+      __( 'Polaroid|Blipfoto Username', 'blipper-widget' ),
+      // callback function to render the field on the form:
       array( &$this, 'wp_blipper_field_render'),
+      // page id (i.e. menu slug):
       'blipper-widget',
+      // section id the field belongs to:
       'blipper-widget-oauth',
+      // arguments for the callback function:
       array(
         'type'        => 'text',
-        'name'        => 'blipper-widget-settings-oauth[client-secret]',
-        'placeholder' => __( 'Enter your Polaroid|Blipfoto client secret here', 'blipper-widget' ),
-        'id'          => 'blipper-widget-input-client-secret',
-        'setting'     => 'client-secret',
+        'name'        => 'blipper-widget-settings-oauth[username]',
+        'placeholder' => __( 'Enter your Polaroid|Blipfoto username here', 'blipper-widget' ),
+        'id'          => 'blipper-widget-input-username',
+        'setting'     => 'username',
       )
     );
     add_settings_field(
+      // field id:
       'blipper-widget-oauth-access-token',
+      // field title:
       __( 'Polaroid|Blipfoto Access Token', 'blipper-widget' ),
+      // callback function to render the field on the form:
       array( &$this, 'wp_blipper_field_render'),
+      // page id (i.e. menu slug):
       'blipper-widget',
+      // section id the field belongs to:
       'blipper-widget-oauth',
+      // arguments for the callback function:
       array(
         'type'        => 'text',
         'name'        => 'blipper-widget-settings-oauth[access-token]',
@@ -153,8 +167,8 @@ class blipper_widget_settings {
   }
 
   /**
-   * Callback function.
    * Output the value, if there is one, in an input field.
+   * Callback function.
    *
    * @since     0.0.2
    * @access    public
@@ -172,6 +186,7 @@ class blipper_widget_settings {
 
 /**
   * Render the options page.
+  * Callback function.
   *
   * @since     0.0.2
   * @access    public
@@ -207,11 +222,12 @@ class blipper_widget_settings {
   }
 
 /**
-  * Validate the input.
+  * Validate the OAuth input.
   * Make sure the input comprises only printable/alphanumeric (depending on the
   * field) characters; otherwise, return an empty string/the default value.
+  * Callback function.
   *
-  * This might become a loop at some point.
+  * (This might become a loop at some point.)
   *
   * @since     0.0.2
   * @access    public
@@ -235,40 +251,22 @@ class blipper_widget_settings {
 
       $settings = get_option( 'blipper-widget-settings-oauth' );
 
-      $input['client-id'] = trim( esc_attr( $input['client-id'] ) );
-      if ( true === ctype_alnum( $input['client-id'] ) ) {
-        $output['client-id'] = $input['client-id'];
-      } else if ( empty( $input['client-id'] ) ) {
+      $input['username'] = trim( esc_attr( $input['username'] ) );
+      if ( true === ctype_print( $input['username'] ) ) {
+        $output['username'] = $input['username'];
+      } else if ( empty( $input['username'] ) ) {
         add_settings_error(
           'wp-blipper-settings-group', 
-          'missing-oauth-client-id', 
-          __( 'Please enter a value for the client ID.', 'blipper-widget' )
+          'missing-oauth-username', 
+          __( 'Please enter a value for the username.', 'blipper-widget' )
         );
       } else {
         add_settings_error(
           'wp-blipper-settings-group', 
-          'invalid-oauth-client-id', 
-          __( 'Please enter alphanumeric characters only for the client ID.', 'blipper-widget' )
+          'invalid-oauth-access-token', 
+          __( 'Please enter printable characters only for the username.', 'blipper-widget' )
         );
-        $output['client-id'] = '';
-      }
-
-      $input['client-secret'] = trim( esc_attr( $input['client-secret'] ) );
-      if ( true === ctype_alnum( $input['client-secret'] ) ) {
-        $output['client-secret'] = $input['client-secret'];
-      } else if ( empty( $input['client-secret'] ) ) {
-        add_settings_error(
-          'wp-blipper-settings-group', 
-          'missing-oauth-client-secret', 
-          __( 'Please enter a value for the client secret.', 'blipper-widget' )
-        );
-      } else {
-        add_settings_error(
-          'wp-blipper-settings-group', 
-          'invalid-oauth-client-secret', 
-          __( 'Please enter alphanumeric characters only for the client secret.', 'blipper-widget' )
-        );
-        $output['client-secret'] = '';
+        $output['username'] = '';
       }
 
       $input['access-token'] = trim( esc_attr( $input['access-token'] ) );
@@ -298,8 +296,8 @@ class blipper_widget_settings {
   }
 
   /**
-   * Callback function.
    * Output the instructions for setting the plugin's options.
+   * Callback function.
    *
    * @since     0.0.2
    * @access    public
@@ -308,7 +306,7 @@ class blipper_widget_settings {
 
     ?>
 
-      <p>You need to authorise access to your Polaroid|Blipfoto account before you can use this plugin.  <em>You can revoke access at any time.</em>  Don't worry: it's not as scary as it looks!  Just follow the instructions below to authorise access and to revoke access.</p>
+      <p>You need to authorise access to your Polaroid|Blipfoto account before you can use this plugin.  <em>You can revoke access at any time.</em></p><p>Just follow the instructions below to authorise access and to revoke access.</p>
       <h4>How to authorise your Polaroid|Blipfoto account</h4>
       <p>To allow WordPress to access your Polaroid|Blipfoto account, you need to carry out a few simple steps:</p>
       <ol>
@@ -321,9 +319,9 @@ class blipper_widget_settings {
         <li>Leave the <i>Redirect URI</i> field blank.</li>
         <li>Indicate that you agree to the <i>Developer rules</i>.</li>
         <li>Press the <i>Create a new app</i> button.</li>
-        <li>You should now see your <i>Client ID</i>, <i>Client Secret</i> and <i>Access Token</i>.  Copy and paste these into the corresponding fields below.</li>
+        <li>You should now see your <i>Client ID</i>, <i>Client Secret</i> and <i>Access Token</i>.  Copy and paste your <i>Access Token</i> only into the corresponding field below.</li>
       </ol>
-      <p>Note that <em>Blipper Widget does not need your username or password</em>.  Whereas it is possible for this plugin to obtain your username from the Polaroid|Blipfoto API, it is not possible to obtain or view your password.</p>
+      <p><abbr title="Nota Bene 'note well'">NB</abbr> Whereas authorisation gives Blipper Widget permission to access your Polaroid|Blipfoto account, it does not give Blipper Widget access to your password.</p>
     <h4>How to revoke access to your Polaroid|Blipfoto account</h4>
     <p>It's simple to revoke access.  We hope you don't want to do this, but if you do, the instructions are laid out below:</p>
     <ol>
@@ -331,15 +329,18 @@ class blipper_widget_settings {
       <li>Select the app whose access you want to revoke (the one you created using the above instructions).</li>
       <li>Press the <i>Save Changes</i> button.</li>
     </ol>
-    <?php
+    <h4>Polaroid|Blipfoto username</h4>
+    <p>You also need to enter your username in the appropriate field below.  The widget will check to see that the access token is valid for your account.
+
+  <?php
 
   }
 
   /**
    * Checks whether the OAuth credentials are valid or not.
-   * A temporay client is created using the settings given.  If the settings are
-   * invalid, an exception will be thrown when the client is used to get data
-   * from Polaroid|Blipfoto.
+   * A temporary client is created using the settings given.  If the settings
+   * are invalid, an exception will be thrown when the client is used to get
+   * data from Polaroid|Blipfoto.
    *
    * @since     0.0.2
    * @access    public
@@ -348,10 +349,11 @@ class blipper_widget_settings {
   private function blipper_widget_test_connection( $oauth_settings ) {
 
     $client = null;
+    $user_profile = null;
     try {
       $client = new blipper_widget_client (
-       $oauth_settings['client-id'],
-       $oauth_settings['client-secret'],
+       '',
+       '',
        $oauth_settings['access-token']
       );
     } catch ( blipper_widget_ApiResponseException $e ) {
@@ -361,18 +363,35 @@ class blipper_widget_settings {
         __( 'Unable to connect to Polaroid|Blipfoto.  Please check the OAuth settings.', 'blipper-widget' )
       );
     }
-    $user_profile = null;
-    try {
-      $user_profile = $client->get(
-        'user/profile'
-      );
-    } catch ( blipper_widget_ApiResponseException $e ) {
-      add_settings_error( 
-        'wp-blipper-settings-group',
-        'invalid-oauth-credentials',
-        __( 'Unable to connect to your Polaroid|Blipfoto user profile.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your OAuth credentials at Polaroid|Blipfoto</a> and pasted them into the settings below.<br>If you have refreshed or changed your Polaroid|Blipfoto OAuth credentials, you also need to update them below.<br>If you have entered the values correctly, try <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">refreshing your credentials</a>.', 'blipper-widget' )
-      );
+    if ( !empty( $client ) && isset( $client ) ) {
+
+      try {
+
+        $user_profile = $client->get(
+          'user/profile'
+        );
+
+        $user = $user_profile->data()['user'];
+
+        if ( $user['username'] != $oauth_settings['username'] ) {
+          throw new blipper_widget_OAuthException( 'Please check the username you entered is correct.' );
+        }
+
+      } catch ( blipper_widget_OAuthException $e ) {
+        add_settings_error( 
+          'wp-blipper-settings-group',
+          'invalid-oauth-credentials',
+          __( 'Error.  ' . $e->getMessage(), 'blipper-widget' )
+        );
+      } catch ( blipper_widget_ApiResponseException $e ) {
+        add_settings_error( 
+          'wp-blipper-settings-group',
+          'invalid-oauth-credentials',
+          __( 'Unable to connect to your Polaroid|Blipfoto user profile.<br>Please check you have correctly copied <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">your access token at Polaroid|Blipfoto</a> and pasted it into the settings below.<br>If you have refreshed your Polaroid|Blipfoto OAuth access token, you need to update it below.<br>If you have entered it correctly, try <a href="https://www.polaroidblipfoto.com/developer/apps" rel="nofollow">refreshing your access token at Polaroid|Blipfoto</a>.', 'blipper-widget' )
+        );
+      }
     }
+    return $client && $user_profile;
   }
 
   /**
@@ -416,7 +435,5 @@ class blipper_widget_settings {
     return 'blipper-widget-settings-oauth';
 
   }
-
-// ---- Widget form settings ------------------------------------------------ //
 
 }
