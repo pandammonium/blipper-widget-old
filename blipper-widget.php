@@ -2,13 +2,13 @@
 
 /**
   *
-  * @link               http://pandammonium.org/dev/wp-blipper-widget/
+  * @link               http://pandammonium.org/wordpress-dev/blipper-widget/
   * @since              0.0.1
   * @package            Blipper_Widget
   *
   * @wordpress-plugin
   * Plugin Name:        Blipper Widget
-  * Plugin URI:         http://pandammonium.org/dev/wp-blipper-widget/
+  * Plugin URI:         http://pandammonium.org/wordpress-dev/blipper-widget/
   * Description:        Display your latest blip in a widget.  Requires a Polaroid|Blipfoto account.
   * Version:            0.0.3
   * Author:             Caity Ross
