@@ -1,14 +1,14 @@
 <?php 
 
 /**
- * Widget settings.
- *
- * These settings are set from the Blipper Widhet settings page, as opposed to
- * on the back-end widget form.  They are settings, such as OAuth credentials,
- * that are unlikely to be changed after they have been set.  The settings on
- * the back-end form of the widget are more to do with the appearance of the
- * front-end widget.  Therefore, it makes sense to keep them separate.
- */
+  * Widget settings.
+  *
+  * These settings are set from the Blipper Widhet settings page, as opposed to
+  * on the back-end widget form.  They are settings, such as OAuth credentials,
+  * that are unlikely to be changed after they have been set.  The settings on
+  * the back-end form of the widget are more to do with the appearance of the
+  * front-end widget.  Therefore, it makes sense to keep them separate.
+  */
 
 namespace blipper_widget;
 
@@ -23,10 +23,10 @@ use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthExcept
 // -- Blipper Widget Settings ----------------------------------------------- //
 
 /**
- * Widget settings.
- *
- * @since 0.0.2
- */
+  * Widget settings.
+  *
+  * @since 0.0.2
+  */
 class blipper_widget_settings {
 
 /**
@@ -36,8 +36,6 @@ class blipper_widget_settings {
   */
   private $blipper_widget_defaults = array(
       'username'              => '',
-      /*'client-id'             => null,
-      'client-secret'         => null,*/
       'access-token'          => '',
     );
 

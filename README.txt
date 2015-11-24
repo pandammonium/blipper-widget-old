@@ -3,7 +3,7 @@ Contributors: pandammonium
 Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display,image display,365 project
 Requires at least: 4.3
 Tested up to: 4.3
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,16 +20,16 @@ Currently, Blipper Widget:
 * displays your journal name and a link to your Polaroid|Blipfoto account (optional); and
 * displays a link to the Polaroid|Blipfoto website (optional).
 
-The image in the blip is not stored on your server.  Instead, the widget hotlinks to the image from Polaroid|Blipfoto.
+The image in the blip is not stored on your server.  Instead, the widget hotlinks to the image on Polaroid|Blipfoto.
 
 = View the plugin =
 
 If you'd like to see the plugin in action, you can visit [my WordPress site](http://pandammonium.org/) to see Blipper Widget showing my latest blip.
 
-If you'd like to see the plugin code, [it's available on GitHub](https://github.com/pandammonium/wp-blipper-widget).
+If you'd like to see the plugin code, [it's available on GitHub](https://github.com/pandammonium/blipper-widget).
 
 = Languages =
-Currently, only English is supported.  I'm afraid I don't yet know how to make other languages available.  If you'd like to help, let me know in the comments on [my WP Blipper Plugin page](http://pandammonium.org/wordpress-dev/wp-blipper-widget/).
+Currently, only English is supported.  I'm afraid I don't yet know how to make other languages available.  If you'd like to help, let me know in the comments on [my Blipper Plugin page](http://pandammonium.org/wordpress-dev/blipper-widget/).
 
 = About Polaroid|Blipfoto =
 [Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journalling service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
@@ -129,17 +129,22 @@ The widget settings are currently:
 
 == Changelog ==
 
+= 0.0.3 =
+* Added: uninstallation code to remove settings pertaining to the Blipper Widget to be removed from the database, leaving no trace of itself.
+* Replaced: screenshot-3.png with a screenshot of the widget in use on a site with the default twenty-fifteen theme with no modifications.
+
 = 0.0.2 =
 * Changed: the widget's settings have been divided into those that act behind the scenes (such as OAuth) and those that directly affect the appearance of the widget front end.
-* Changed: the OAuth settings moved to WP Blipper settings page under the general WordPress settings menu in the admin area.
+* Changed: the OAuth settings moved to Blipper Widget settings page under the general WordPress settings menu in the admin area.
 * Added: settings affecting the widget's appearance to the widget form; specifically including links back to Polaroid|Blipfoto (the blip itself, the user's journal, Polaroid|Blipfoto).  By default, these links are not displayed; the user must opt in to their display.
+* Renamed: the name of the widget from WP Blipper Widget to Blipper Widget, thus dropping the WP.
 
 = 0.0.1 =
 * Initial version.
 
 == Known issues ==
 
-There is [a list of known problems and enhancement requests](https://github.com/pandammonium/wp-blipper-widget/issues) on GitHub.
+There is [a list of known problems and enhancement requests](https://github.com/pandammonium/wp-blipper-widget/issues) on GitHub.  If you have a suggestion for how to improve Blipper Widget, please add it to GitHub.  Cheers!
 
 == Credits ==
 
