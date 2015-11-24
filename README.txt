@@ -151,3 +151,5 @@ There is [a list of known problems and enhancement requests](https://github.com/
 This plug-in is loosely based on BlipPress by [Simon Blackbourne](https://mobile.twitter.com/lumpysimon).  I very much appreciate having his work to guide me with the use of [the Polaroid|Blipfoto API](https://www.polaroidblipfoto.com/developer/api).
 
 I also used the excellent [Rotating Tweets](https://wordpress.org/plugins/rotatingtweets/) plugin to guide me with how to implement the settings page and the widget back-end.
+
+In addition, I used WP-Spamshield as a model of how to implement uninstallation code.
