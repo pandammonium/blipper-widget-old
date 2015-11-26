@@ -1,5 +1,6 @@
 === Blipper Widget ===
 Contributors: pandammonium
+Donate link: http://pandammonium.org/donate/
 Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display,image display,365 project
 Requires at least: 4.3
 Tested up to: 4.3
@@ -32,7 +33,7 @@ If you'd like to see the plugin code, [it's available on GitHub](https://github.
 Currently, only English is supported.  I'm afraid I don't yet know how to make other languages available.  If you'd like to help, let me know in the comments on [my Blipper Plugin page](http://pandammonium.org/wordpress-dev/blipper-widget/).
 
 = About Polaroid|Blipfoto =
-[Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journalling service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
+[Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journal service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
 
 This plugin is independent of and unendorsed by Polaroid|Blipfoto.
 
@@ -90,8 +91,10 @@ Installation of a WordPress plugin manually requires FTP familiarity and the awa
 
 = OAuth 2.0 =
 
-You'll need OAuth credentials and an access token from Polaroid|Blipfoto to use the widget.  To obtain these:
+You'll need your Polaroid|Blipfoto username and an OAuth access token from Polaroid|Blipfoto to use the widget.
+Your username is the username you use to sign in to Polaroid|Blipfoto.  Blipper Widget uses this information only to verify your account.  Blipper Widget does not have access to your Polaroid|Blipfoto password.
 
+To obtain the access token, follow the instructions below:
 1. Open [the Polaroid|Blipfoto apps page](https://www.polaroidblipfoto.com/developer/apps) in a new tab or window.
 1. Press the 'Create new app' button.
 1. In the 'Name' field, give your app any name you like, for example, 'My super-duper app'.
@@ -101,7 +104,9 @@ You'll need OAuth credentials and an access token from Polaroid|Blipfoto to use 
 1. Leave the 'Redirect URI' field blank.
 1. Indicate that you agree to the 'Developer rules'.
 1. Press the 'Create a new app' button.
-1. You should now see your Credentials (Client ID and Client Secret) and Access Token.  Copy and paste these into the corresponding fields on the Blipper Widget settings page.
+1. You should now see your Credentials (Client ID and Client Secret) and Access Token.  Copy and paste the access token into the corresponding field on the Blipper Widget settings page.
+
+Note that if you refresh your access token, you must update it in Blipper Widget.
 
 You can revoke access from Blipper Widget to your Polaroind|Blipfoto account easily:
 
@@ -117,9 +122,9 @@ Once installed and the OAuth credentials have been set successfully, add the wid
 The widget settings are currently:
 
 * Widget title: customisable. The default is 'My latest blip', but you can change it to what suits you or you can delete it and leave it blank.
-* Include link to your latest blip: to link the displayed blip back to the corresponding entry on Polaroid|Blipfoto, tick the box.  The link has a rel="nofollow" attribute.
-* Display journal title and link: to include a link back to your Polaroid|Blipfoto journal, tick the box. For my journal, the link will appear as 'From Panda’s Pics'.  The link has a rel="nofollow" attribute.
-* Include a ‘powered by’ link: to include a 'Powered by Polaroid|Blipfoto' link to be displayed, tick the box.  The link has a rel="nofollow" attribute.
+* Include link to your latest blip: to link the displayed blip back to the corresponding entry on Polaroid|Blipfoto, tick the box.  The link has a rel="nofollow" attribute.  This option is unticked by default.
+* Display journal title and link: to include a link back to your Polaroid|Blipfoto journal, tick the box. For my journal, the link will appear as 'From Panda’s Pics'.  The link has a rel="nofollow" attribute.  This option is unticked by default.
+* Include a ‘powered by’ link: to include a 'Powered by Polaroid|Blipfoto' link to be displayed, tick the box.  The link has a rel="nofollow" attribute.  This option is unticked by default.
 
 == Screenshots ==
 
