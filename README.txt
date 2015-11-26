@@ -21,29 +21,30 @@ Currently, Blipper Widget:
 * displays your journal name and a link to your Polaroid|Blipfoto account (optional); and
 * displays a link to the Polaroid|Blipfoto website (optional).
 
-The image in the blip is not stored on your server.  Instead, the widget hotlinks to the image on Polaroid|Blipfoto.
-
 = View the plugin =
-
 If you'd like to see the plugin in action, you can visit [my WordPress site](http://pandammonium.org/) to see Blipper Widget showing my latest blip.
 
 If you'd like to see the plugin code, [it's available on GitHub](https://github.com/pandammonium/blipper-widget).
 
 = Languages =
+
 Currently, only English is supported.  I'm afraid I don't yet know how to make other languages available.  If you'd like to help, let me know in the comments on [my Blipper Plugin page](http://pandammonium.org/wordpress-dev/blipper-widget/).
 
 = About Polaroid|Blipfoto =
+
 [Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journal service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
 
 This plugin is independent of and unendorsed by Polaroid|Blipfoto.
 
 = Requirements =
+
 * Polaroid|Blipfoto account
 * WordPress 4.3
 * PHP 5
 * PHP [Client URL (cURL) library](http://php.net/manual/en/book.curl.php)
 
 = Disclaimer =
+
 By using this plugin, you consent to it performing actions involving your Polaroid|Blipfoto account, including, but not limited to, obtaining your account details (excluding your password).
 
 You, the Polaroid|Blipfoto account holder, are responsible for the images shown on any website using the Blipper Widget with your OAuth credentials and access token.
@@ -51,17 +52,25 @@ You, the Polaroid|Blipfoto account holder, are responsible for the images shown 
 == Frequently Asked Questions ==
 
 = Does the widget need my Polaroid|Blipfoto username and password? =
-The widget uses OAuth 2.0 to authorise access to your Polaroid|Blipfoto account, so there is no need to enter your username or password.  However, the widget is able to access your username through the Polaroid|Blipfoto API.  Since this information is available publicly anyway, this shouldn't be a problem.  If you do have a problem with this, please do not use the widget.
+
+The widget asks for your username for verification purposes, but does not require your password.  It does not ask for your password and it does not have access to your password.  The widget uses an OAuth 2.0 access token to authorise access to your Polaroid|Blipfoto account, eliminating the need for your password.
 
 = Why doesn't the plugin seem to do anything? =
-* You may not have any blips to view.  Please make sure you have at least one blip in your Polaroid|Blipfoto account.
-* It may be because you have made a mistake transferring your OAuth credentials from the Polaroid|Blipfoto website to the plugin settings.  Please make sure these details are correct.
-* If you have refreshed your OAuth app credentials or access token at Polaroid|Blipfoto, you will need to update these details on the Blipper Widget settingsd page.
-
-You must be logged in and able to manage WordPress settings to view any error message the plugin produces.
+* If you haven't added any blips to your Polaroid|Blipfoto journal, you won't see any blips in your widget.  Please make sure you have at least one blip in your Polaroid|Blipfoto account.
+* If you are logged in and are able to change your site's options and settings, you should see an error message indicating the problem.  It is most likely that you have mistyped your username or that you haven't copied your access token correctly.  Amend these details, and try again.
+* If you have refreshed your OAuth app credentials or access token at Polaroid|Blipfoto, you will need to update these details on the Blipper Widget settings page.
 
 = Where can I get support for Blipper Widget? =
+
 You can use [the Blipper Widget page](http://pandammonium.org/wordpress-dev/wp-blipper-widget/) on my website to ask questions and report problems.
+
+= Does the widget use the original image? =
+
+The widget uses the URL of the best quality image made available to it; typically, this is standard resolution.  Standard resolution is normally good enough for display in a widget.
+
+= Is the image stored on my web server? =
+
+No, the image in the blip is not stored on your server: the widget links to the image on Polaroid|Blipfoto.
 
 == Installation ==
 
@@ -135,16 +144,20 @@ The widget settings are currently:
 == Changelog ==
 
 = 0.0.3 =
+
 * Added: uninstallation code to remove settings pertaining to the Blipper Widget to be removed from the database, leaving no trace of itself.
 * Replaced: screenshot-3.png with a screenshot of the widget in use on a site with the default twenty-fifteen theme with no modifications.
+* Added donation link.
 
 = 0.0.2 =
+
 * Changed: the widget's settings have been divided into those that act behind the scenes (such as OAuth) and those that directly affect the appearance of the widget front end.
 * Changed: the OAuth settings moved to Blipper Widget settings page under the general WordPress settings menu in the admin area.
 * Added: settings affecting the widget's appearance to the widget form; specifically including links back to Polaroid|Blipfoto (the blip itself, the user's journal, Polaroid|Blipfoto).  By default, these links are not displayed; the user must opt in to their display.
 * Renamed: the name of the widget from WP Blipper Widget to Blipper Widget, thus dropping the WP.
 
 = 0.0.1 =
+
 * Initial version.
 
 == Known issues ==
