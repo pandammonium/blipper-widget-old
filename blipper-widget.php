@@ -19,11 +19,29 @@
   * Domain Path:        /languages
   */
 
+/**  Copyright 2015 Caity Ross
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) or die();
 defined( 'WPINC' ) or die();
 
 use blipper_widget_Blipfoto\blipper_widget_Api\blipper_widget_Client;
+use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_BaseException;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_ApiResponseException;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthException;
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_InvalidResponseException;
@@ -359,7 +377,7 @@ class Blipper_Widget extends WP_Widget {
       }
     } catch ( blipper_widget_ApiResponseException $e ) {
       if ( current_user_can( 'manage_options' ) ) {
-        echo '<p>' . __( 'Polaroid|Blipfoto error.  ' . $e->getMessage() . '  Please check your OAuth settings on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.', 'blipper-widget' ) . '</p>';
+        echo '<p>' . __( 'Polaroid|Blipfoto error.  ' . $e->getMessage(), 'blipper-widget' ) . '</p>';
       }
     }
 
@@ -370,11 +388,10 @@ class Blipper_Widget extends WP_Widget {
         $user_profile = $this->client->get(
             'user/profile'
           );
-
           $user = $user_profile->data()['user'];
 
           if ( $user['username'] != $oauth_settings['username'] ) {
-            throw new blipper_widget_OAuthException( 'Please check the username you entered is correct.' );
+            throw new blipper_widget_OAuthException( 'Unable to verify user.  Please check the username you entered on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> is correct.' );
           } else {
             $client_ok = true;
           }
@@ -384,13 +401,13 @@ class Blipper_Widget extends WP_Widget {
     } catch ( blipper_widget_OAuthException $e ) {
 
       if ( current_user_can( 'manage_options' ) ) {
-        echo '<p>' . __( 'OAuth error.  ' . $e->getMessage() . '  Please check your OAuth settings on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.', 'blipper-widget' ) . '</p>';
+        echo '<p>' . __( 'OAuth error.  ' . $e->getMessage(), 'blipper-widget' ) . '</p>';
       }
 
     } catch ( blipper_widget_ApiResponseException $e ) {
 
       if ( current_user_can( 'manage_options' ) ) {
-        echo '<p>' . __( 'Polaroid|Blipfoto error.  ' . $e->getMessage() . '  Please check your OAuth settings on <a href="' . esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) . '">the Blipper Widget settings page</a> to continue.', 'blipper-widget' ) . '</p>';
+        echo '<p>' . __( 'Polaroid|Blipfoto error.  ' . $e->getMessage(). '  Please try again later (in about fifteen minutes).', 'blipper-widget' ) . '</p>';
       }
 
     } catch ( blipper_widget_BaseException $e ) {

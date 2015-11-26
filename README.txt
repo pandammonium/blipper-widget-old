@@ -21,7 +21,10 @@ Currently, Blipper Widget:
 * displays your journal name and a link to your Polaroid|Blipfoto account (optional); and
 * displays a link to the Polaroid|Blipfoto website (optional).
 
+The image in the blip is not stored on your server: the widget links to the image on Polaroid|Blipfoto.
+
 = View the plugin =
+
 If you'd like to see the plugin in action, you can visit [my WordPress site](http://pandammonium.org/) to see Blipper Widget showing my latest blip.
 
 If you'd like to see the plugin code, [it's available on GitHub](https://github.com/pandammonium/blipper-widget).
@@ -59,18 +62,23 @@ The widget asks for your username for verification purposes, but does not requir
 * If you haven't added any blips to your Polaroid|Blipfoto journal, you won't see any blips in your widget.  Please make sure you have at least one blip in your Polaroid|Blipfoto account.
 * If you are logged in and are able to change your site's options and settings, you should see an error message indicating the problem.  It is most likely that you have mistyped your username or that you haven't copied your access token correctly.  Amend these details, and try again.
 * If you have refreshed your OAuth app credentials or access token at Polaroid|Blipfoto, you will need to update these details on the Blipper Widget settings page.
+* You might have hit the rate limit set by Polaroid|Blipfoto.  If this is the case, try again in fifteen minutes or so.
 
 = Where can I get support for Blipper Widget? =
 
 You can use [the Blipper Widget page](http://pandammonium.org/wordpress-dev/wp-blipper-widget/) on my website to ask questions and report problems.
 
+= Is the image stored on my web server? =
+
+No.  The image in the blip is not stored on your server: the widget links to the image on Polaroid|Blipfoto.
+
 = Does the widget use the original image? =
 
 The widget uses the URL of the best quality image made available to it; typically, this is standard resolution.  Standard resolution is normally good enough for display in a widget.
 
-= Is the image stored on my web server? =
+= Can I display the blips from another account with my access token in my widget? =
 
-No, the image in the blip is not stored on your server: the widget links to the image on Polaroid|Blipfoto.
+No.  The access token must belong to the account whose username is given in the widget settings.
 
 == Installation ==
 
@@ -166,8 +174,8 @@ There is [a list of known problems and enhancement requests](https://github.com/
 
 == Credits ==
 
-This plug-in is loosely based on BlipPress by [Simon Blackbourne](https://mobile.twitter.com/lumpysimon).  I very much appreciate having his work to guide me with the use of [the Polaroid|Blipfoto API](https://www.polaroidblipfoto.com/developer/api).
+This plug-in is loosely based on [BlipPress](https://wordpress.org/plugins/blippress/) by [Simon Blackbourne](https://mobile.twitter.com/lumpysimon).  I very much appreciate having his work to guide me with the use of [the Polaroid|Blipfoto API](https://www.polaroidblipfoto.com/developer/api).
 
 I also used the excellent [Rotating Tweets](https://wordpress.org/plugins/rotatingtweets/) plugin to guide me with how to implement the settings page and the widget back-end.
 
-In addition, I used WP-Spamshield as a model of how to implement uninstallation code.
+In addition, I used [WP-Spamshield](https://wordpress.org/plugins/wp-spamshield/) as a model of how to implement uninstallation code.

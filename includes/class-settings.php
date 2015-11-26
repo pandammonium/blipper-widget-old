@@ -1,7 +1,8 @@
 <?php 
 
 /**
-  * Widget settings.
+  * Blipper Widget OAuth settings.
+  * @since 0.0.2
   *
   * These settings are set from the Blipper Widhet settings page, as opposed to
   * on the back-end widget form.  They are settings, such as OAuth credentials,
@@ -327,6 +328,7 @@ class blipper_widget_settings {
       <li>Select the app whose access you want to revoke (the one you created using the above instructions).</li>
       <li>Press the <i>Save Changes</i> button.</li>
     </ol>
+    <p>Note that your plugin will no longer work.</p>
     <h4>Polaroid|Blipfoto username</h4>
     <p>You also need to enter your username in the appropriate field below.  The widget will check to see that the access token is valid for your account.
 

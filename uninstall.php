@@ -1,13 +1,14 @@
 <?php
 
 /**
+  * Blipper Widget — uninstallation
+  * @since 0.0.3
+  *
   * This files uninstalls Blipper Widget and removes the options stored in the
   * database.
   *
   * Some of this code is unashamedly swiped from the uninstall.php file of the
   * WP-Spamshield plug-in.
-  *
-  * @since 0.0.3
   */
 
 // If uninstall not called from WordPress exit:
