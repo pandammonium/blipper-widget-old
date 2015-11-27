@@ -4,7 +4,7 @@ Donate link: http://pandammonium.org/donate/
 Tags: photos,photo,blipfoto,polaroid,widget,polaroid blipfoto,daily photo,photo display,image display,365 project
 Requires at least: 4.3
 Tested up to: 4.3
-Stable tag: 0.0.3
+Stable tag: 0.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -150,6 +150,14 @@ The widget settings are currently:
 3. An example of the widget in use on [pandammonium.org](http://pandammonium.org/), showing a link to my Polaroid|Blipfoto journal and a powered-by link.
 
 == Changelog ==
+
+= 0.0.5 =
+
+* Fixing: the version numbering.
+
+= 0.0.4 =
+
+* Updated: screenshots.
 
 = 0.0.3 =
 
