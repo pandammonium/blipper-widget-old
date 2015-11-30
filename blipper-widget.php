@@ -109,16 +109,27 @@ class Blipper_Widget extends WP_Widget {
   );
 
 /**
+  * @since    0.0.5
+  * @access   private
+  * @var      array     $default_styles           The widget's default styling
+  */
+  private $default_styles = array (
+    'border-width'          => 'inherit',
+    'border-style'          => 'inherit',
+    'border-color'          => 'inherit',
+  );
+
+/**
   * @since    0.0.1
   * @access   private
-  * @var      blipper_widget_Client     $client     The Polaroid|Blipfoto client
+  * @var      blipper_widget_Client     $client   The Polaroid|Blipfoto client
   */
   private $client;
 
 /**
   * @since    0.0.1
   * @access   private
-  * @var      blipper_widget_settings   $settings   The Blipper Widget settings
+  * @var      blipper_widget_settings   $settings The Blipper Widget settings
   */
   private $settings;
 
@@ -672,7 +683,7 @@ class Blipper_Widget extends WP_Widget {
       $continue = false;
 
       // Display the blip.
-      echo '<figure style="border-width:10;border-style:solid;border-color:#333333">';
+      echo '<figure style="border-width:' . $this->blipper_widget_get_style( 'border-width') . ';border-style: ' .  $this->blipper_widget_get_style( 'border-style') . ';border-color:' .  $this->blipper_widget_get_style( 'border-color') . '">';
 
       // Link back to the blip on the Polaroid|Blipfoto site.
       if ( $instance['add-link-to-blip'] ) {
@@ -680,6 +691,7 @@ class Blipper_Widget extends WP_Widget {
       }
       // Add the image.
       echo '<img src="' . $image_url . '" 
+        class="blipper-widget-image"
         alt="' . $blip['title'] . '" 
         height="auto" 
         width="auto">
@@ -814,6 +826,12 @@ class Blipper_Widget extends WP_Widget {
 
       <?php
     }
+
+  }
+
+  private function blipper_widget_get_style( $style_element ) {
+
+    return $this->default_styles[$style_element];
 
   }
 
