@@ -37,7 +37,7 @@ Currently, only English is supported.  I'm afraid I don't yet know how to make o
 
 [Polaroid|Blipfoto](https://www.polaroidblipfoto.com/) is a photo journal service, allowing users to post one photo a day along with descriptive text and tags.  It uses OAuth 2.0 to ensure that your password is kept secure.  You will need to obtain these from Polaroid|Blipfoto.  This is a straightforward process and instructions are given below.
 
-This plugin is independent of and unendorsed by Polaroid|Blipfoto.
+This plugin is independent of and unendorsed by Polaroid|Blipfoto.  Use of this plugin means you consent to this plugin accessing your Polaroid|Blipfoto account and performing actions including publishing your blips on your WordPress website.
 
 = Requirements =
 
@@ -153,7 +153,9 @@ The widget settings are currently:
 
 = 0.0.5 =
 
-* Fixing: the version numbering.
+* Changed: the display of the date is now optional.  It is on by default so as not to change previous behaviour.
+* Improved: handling of options.
+* Improved: exception handling.
 
 = 0.0.4 =
 
@@ -175,6 +177,12 @@ The widget settings are currently:
 = 0.0.1 =
 
 * Initial version.
+
+== Upgrade notice ==
+
+= 0.0.5 =
+
+Now you can hide the date of your blip.  The date is shown by default so you shouldn't see a change in existing behaviour.
 
 == Known issues ==
 
