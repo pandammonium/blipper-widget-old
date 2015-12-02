@@ -153,7 +153,8 @@ The widget settings are currently:
 
 = 0.0.5 =
 
-* Changed: the display of the date is now optional.  It is on by default so as not to change previous behaviour.
+* Added: styling!  You can now change the border of the widget, including the line style, the thickness and the colour.  You can also change the background colour and the text colours.
+* Changed: the display of the date is now optional.  It is on by default for backwards compatibility.
 * Improved: handling of options.
 * Improved: exception handling.
 
@@ -182,7 +183,7 @@ The widget settings are currently:
 
 = 0.0.5 =
 
-Now you can hide the date of your blip.  The date is shown by default so you shouldn't see a change in existing behaviour.
+This version allows you to style your widget.  You can also hide the date of your blip in the widget.  The date is shown by default for backwrds compatibility.
 
 == Known issues ==
 
