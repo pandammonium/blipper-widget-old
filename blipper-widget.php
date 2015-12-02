@@ -231,8 +231,6 @@ class Blipper_Widget extends WP_Widget {
   * Make sure the input comprises only printable/alphanumeric (depending on the
   * field) characters; otherwise, return an empty string/the default value.
   *
-  * This might become a loop at some point.
-  *
   * @since    0.0.1
   * @access   private
   * @var      array     $new_instance     The setting the user wants to change
@@ -280,15 +278,9 @@ class Blipper_Widget extends WP_Widget {
         $instance = array_key_exists( $setting_field, $new_instance ) ? ( $new_instance[$setting_field] ? 'show' : 'hide' ) : 'hide';
       break;
       case 'border-style':
-        if ( array_key_exists( $setting_field, $new_instance ) ) {
-          $instance = $new_instance[$setting_field];
-        }
-      break;
       case 'border-width':
         if ( array_key_exists( $setting_field, $new_instance ) ) {
-          if ( true == ctype_digit( $new_instance[$setting_field] ) || $this->default_setting_values['border-width'] == $new_instance[$setting_field] ) {
-            $instance = $new_instance[$setting_field];
-          }
+          $instance = $new_instance[$setting_field];
         }
       break;
       default:
@@ -313,7 +305,7 @@ class Blipper_Widget extends WP_Widget {
   private function blipper_widget_get_display_values( $instance ) {
 
     $new_instance['title'] = array_key_exists( 'title', $instance ) ? esc_attr( $instance['title'] ) : $this->default_setting_values['title'];
-    $new_instance['display-date'] = array_key_exists( 'display-date', $instance ) ? esc_attr( $instance['display-date'] ) :$this->default_setting_values['display-date'];
+    $new_instance['display-date'] = array_key_exists( 'display-date', $instance ) ? esc_attr( $instance['display-date'] ) : $this->default_setting_values['display-date'];
     $new_instance['display-journal-title'] = array_key_exists( 'display-journal-title', $instance ) ? esc_attr( $instance['display-journal-title'] ) : $this->default_setting_values['display-journal-title'];
     $new_instance['add-link-to-blip'] = array_key_exists( 'add-link-to-blip', $instance ) ? esc_attr( $instance['add-link-to-blip'] ) : $this->default_setting_values['add-link-to-blip'];
     $new_instance['powered-by'] = array_key_exists( 'powered-by', $instance ) ? esc_attr( $instance['powered-by'] ) : $this->default_setting_values['powered-by'];
@@ -700,7 +692,7 @@ class Blipper_Widget extends WP_Widget {
       // Display the blip.
 
       echo '<figure style="border-style:' . $this->blipper_widget_get_style( $instance, 'border-style') 
-        . ';border-width:' .  $this->blipper_widget_get_style( $instance, 'border-width') . 'px'
+        . ';border-width:' .  $this->blipper_widget_get_style( $instance, 'border-width')
         . ';border-color:' .  $this->blipper_widget_get_style( $instance, 'border-color') 
         . ';background-color:' . $this->blipper_widget_get_style( $instance, 'background-color' )
         . ';color:' . $this->blipper_widget_get_style( $instance, 'color' )
@@ -792,7 +784,7 @@ class Blipper_Widget extends WP_Widget {
           name="<?php echo $this->get_field_name( 'display-date' ); ?>"
           type="checkbox"
           value="1"
-          <?php echo esc_attr( $instance['display-date'] ) == 'show' ? 'checked="checked"' : ''; ?>
+          <?php checked( 'show', esc_attr( $instance['display-date'] ) ); ?>
         >
         <label for="<?php echo $this->get_field_id( 'display-date' ); ?>">
           <?php _e( 'Display date of your latest blip', 'display-date' ) ?>
@@ -807,7 +799,7 @@ class Blipper_Widget extends WP_Widget {
           name="<?php echo $this->get_field_name( 'add-link-to-blip' ); ?>"
           type="checkbox"
           value="1"
-          <?php echo esc_attr( $instance['add-link-to-blip'] ) == 'show' ? 'checked="checked"' : ''; ?>
+          <?php checked( 'show', esc_attr( $instance['add-link-to-blip'] ) ); ?>
         >
         <label for="<?php echo $this->get_field_id( 'add-link-to-blip' ); ?>">
           <?php _e( 'Include link to your latest blip', 'add-link-to-blip' ) ?>
@@ -822,7 +814,7 @@ class Blipper_Widget extends WP_Widget {
           name="<?php echo $this->get_field_name( 'display-journal-title' ); ?>"
           type="checkbox"
           value="1"
-          <?php echo esc_attr( $instance['display-journal-title'] ) == 'show' ? 'checked="checked"' : ''; ?>
+          <?php checked( 'show', esc_attr( $instance['display-journal-title'] ) ); ?>
         >
         <label for="<?php echo $this->get_field_id( 'display-journal-title' ); ?>">
           <?php _e( 'Display journal title and link', 'display-journal-title' ) ?>
@@ -837,7 +829,7 @@ class Blipper_Widget extends WP_Widget {
           name="<?php echo $this->get_field_name( 'powered-by' ); ?>"
           type="checkbox"
           value="1"
-          <?php echo esc_attr( $instance['powered-by'] ) == 'show' ? 'checked="checked"' : ''; ?>
+          <?php checked( 'show', esc_attr( $instance['powered-by'] ) ); ?>
         >
         <label for="<?php echo $this->get_field_id( 'powered-by' ); ?>">
           <?php _e( 'Include a \'powered by\' link', 'powered-by' ) ?>
@@ -868,22 +860,31 @@ class Blipper_Widget extends WP_Widget {
           <option value="outset" <?php selected( 'outset', esc_attr( $instance['border-style'] ) ); ?>>outset line</option>
         </select>
       </p>
-      <p class="description">The default style uses your theme's style.  The border won't show if the style is set to 'none'.</p>
+      <p class="description">The default style uses your theme's style.  The border won't show if the style is set to 'no line'.</p>
       <p>
         <label for="<?php echo $this->get_field_id('border-width'); ?>">
           <?php _e( 'Border width (px)', 'blipper-widget' ); ?>
         </label>
-        <input
+        <select
           class="widefat"
           id="<?php echo $this->get_field_id( 'border-width' ); ?>"
           name="<?php echo $this->get_field_name( 'border-width' ); ?>"
-          type="text"
-          value="<?php echo $this->blipper_widget_get_style( $instance, 'border-width' ); ?>"
-          placeholder="Border width in pixels"
         >
-        </input>
+          <option value="inherit" <?php selected( 'inherit', esc_attr( $instance['border-width'] ) ); ?>>default</option>
+          <option value="0px" <?php selected( '0px', esc_attr( $instance['border-width'] ) ); ?>>0 pixels</option>
+          <option value="1px" <?php selected( '1px', esc_attr( $instance['border-width'] ) ); ?>>1 pixels</option>
+          <option value="2px" <?php selected( '2px', esc_attr( $instance['border-width'] ) ); ?>>2 pixels</option>
+          <option value="3px" <?php selected( '3px', esc_attr( $instance['border-width'] ) ); ?>>3 pixels</option>
+          <option value="4px" <?php selected( '4px', esc_attr( $instance['border-width'] ) ); ?>>4 pixels</option>
+          <option value="5px" <?php selected( '5px', esc_attr( $instance['border-width'] ) ); ?>>5 pixels</option>
+          <option value="6px" <?php selected( '6px', esc_attr( $instance['border-width'] ) ); ?>>6 pixels</option>
+          <option value="7px" <?php selected( '7px', esc_attr( $instance['border-width'] ) ); ?>>7 pixels</option>
+          <option value="8px" <?php selected( '8px', esc_attr( $instance['border-width'] ) ); ?>>8 pixels</option>
+          <option value="9px" <?php selected( '9px', esc_attr( $instance['border-width'] ) ); ?>>9 pixels</option>
+          <option value="10px" <?php selected( '10px', esc_attr( $instance['border-width'] ) ); ?>>10 pixels</option>
+        </select>
       </p>
-      <p class="description">The border width should be a <em>whole</em> number of <strong>pixels</strong>.  The default value (inherit) uses your theme's style.  The border won't show if the width is zero.</p>
+      <p class="description">The border width is in pixels.  The default is to use your theme's style.  The border won't show if the width is zero.</p>
       <?php
     }
 
