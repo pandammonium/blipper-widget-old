@@ -709,6 +709,10 @@ class Blipper_Widget extends WP_Widget {
         . '">';
 
       // Link back to the blip on the Polaroid|Blipfoto site.
+      if ( ! array_key_exists( 'add-link-to-blip' , $instance ) ) {
+        // Necessary for when Blipper Widget is added via the Customiser
+        $instance['add-link-to-blip'] = $this->default_setting_values['add-link-to-blip'];
+      }
       if ( $instance['add-link-to-blip'] ) {
         echo '<a href="https://www.polaroidblipfoto.com/entry/' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
@@ -728,6 +732,10 @@ class Blipper_Widget extends WP_Widget {
       echo '<figcaption style="padding-top:7px;' . $this->blipper_widget_get_style( $instance, 'color' ) . '">';
 
       // Date (optional) and title
+      if ( ! array_key_exists( 'display-date' , $instance ) ) {
+        // Necessary for when Blipper Widget is added via the Customiser
+        $instance['display-date'] = $this->default_setting_values['display-date'];
+      }
       if ( $instance['display-date'] == 'show' ) {
         echo date( get_option( 'date_format' ), $blip['date_stamp'] );
         if ( !empty( $blip['title'] ) ) {
@@ -737,6 +745,14 @@ class Blipper_Widget extends WP_Widget {
       echo $blip['title'];
 
       // Journal title and/or powered-by link.
+      if ( ! array_key_exists( 'display-journal-title' , $instance ) ) {
+        // Necessary for when Blipper Widget is added via the Customiser
+        $instance['display-journal-title'] = $this->default_setting_values['display-journal-title'];
+      }
+      if ( ! array_key_exists( 'powered-by' , $instance ) ) {
+        // Necessary for when Blipper Widget is added via the Customiser
+        $instance['powered-by'] = $this->default_setting_values['powered-by'];
+      }
       if ( $instance['display-journal-title'] == 'show' && $instance['powered-by'] == 'show' ) {
         echo '<footer><p style="font-size:75%;">From <a href="https://www.polaroidblipfoto.com/' 
           . $user_settings->data( 'username' ) 
