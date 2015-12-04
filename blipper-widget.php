@@ -97,6 +97,7 @@ class Blipper_Widget extends WP_Widget {
     'background-color'      => 'inherit',
     'color'                 => 'inherit',
     'link-color'            => 'initial',
+    'padding'               => '0',
   );
 
 /**
@@ -207,6 +208,7 @@ class Blipper_Widget extends WP_Widget {
     $background_colour      = $this->blipper_widget_validate( $new_instance, $old_instance, 'background-color' );
     $colour                 = $this->blipper_widget_validate( $new_instance, $old_instance, 'color' );
     $link_colour            = $this->blipper_widget_validate( $new_instance, $old_instance, 'link-color' );
+    $padding                = $this->blipper_widget_validate( $new_instance, $old_instance, 'padding' );
 
     $instance['title']                  = $title;
     $instance['display-date']           = $display_date;
@@ -219,6 +221,7 @@ class Blipper_Widget extends WP_Widget {
     $instance['background-color']       = $background_colour;
     $instance['color']                  = $colour;
     $instance['link-color']             = $link_colour;
+    $instance['padding']                = $padding;
 
     return $instance;
 
@@ -244,7 +247,7 @@ class Blipper_Widget extends WP_Widget {
     error_log( "\tProposed value:  " . ( array_key_exists( $setting_field, $new_instance ) ? $new_instance[$setting_field] : "undefined" ) );
 
     if ( array_key_exists( $setting_field, $old_instance ) && array_key_exists( $setting_field, $new_instance ) ) {
-      if ( $new_instance[$setting_field] == $old_instance[$setting_field] ) {
+      if ( $new_instance[$setting_field] === $old_instance[$setting_field] ) {
         $instance =  $old_instance[$setting_field];
         error_log( "\tValue unchanged\n" );
         return $instance;
@@ -275,20 +278,12 @@ class Blipper_Widget extends WP_Widget {
       case 'powered-by':
         $instance = array_key_exists( $setting_field, $new_instance ) ? ( ! empty( $new_instance[$setting_field] ) ? 'show' : 'hide' ) : 'hide';
       break;
-      case 'border-style':
-      case 'border-width':
-        if ( array_key_exists( $setting_field, $new_instance ) ) {
-          $instance = $new_instance[$setting_field];
-        }
-      break;
-      case 'border-color':
-      case 'background-color':
-      case 'color':
-      case 'link-color':
-        $instance = array_key_exists( $setting_field, $new_instance ) ? ( !empty( $new_instance[$setting_field] ) ? $new_instance[$setting_field] : $this->default_setting_values[$setting_field] ) : $this->default_setting_values[$setting_field];
-      break;
       default:
-        $instance = null;
+        if ( array_key_exists( $setting_field, $new_instance ) ) {
+          if ( ! empty( $new_instance[$setting_field] ) ) {
+            $instance = $new_instance[$setting_field];
+          }
+        }
     }
 
     error_log( "\tNew value:       $instance\n" );
@@ -308,19 +303,26 @@ class Blipper_Widget extends WP_Widget {
   */
   private function blipper_widget_get_display_values( $instance ) {
 
-    $new_instance['title'] = array_key_exists( 'title', $instance ) ? esc_attr( $instance['title'] ) : $this->default_setting_values['title'];
-    $new_instance['display-date'] = array_key_exists( 'display-date', $instance ) ? esc_attr( $instance['display-date'] ) : $this->default_setting_values['display-date'];
-    $new_instance['display-journal-title'] = array_key_exists( 'display-journal-title', $instance ) ? esc_attr( $instance['display-journal-title'] ) : $this->default_setting_values['display-journal-title'];
-    $new_instance['add-link-to-blip'] = array_key_exists( 'add-link-to-blip', $instance ) ? esc_attr( $instance['add-link-to-blip'] ) : $this->default_setting_values['add-link-to-blip'];
-    $new_instance['powered-by'] = array_key_exists( 'powered-by', $instance ) ? esc_attr( $instance['powered-by'] ) : $this->default_setting_values['powered-by'];
-    $new_instance['border-style'] = array_key_exists( 'border-style', $instance ) ? esc_attr( $instance['border-style'] ) : $this->default_setting_values['border-style'];
-    $new_instance['border-width'] = array_key_exists( 'border-width', $instance ) ? esc_attr( $instance['border-width'] ) : $this->default_setting_values['border-width'];
-    $new_instance['border-color'] = array_key_exists( 'border-color', $instance ) ? esc_attr( $instance['border-color'] ) : $this->default_setting_values['border-color'];
-    $new_instance['background-color'] = array_key_exists( 'background-color', $instance ) ? esc_attr( $instance['background-color'] ) : $this->default_setting_values['background-color'];
-    $new_instance['color'] = array_key_exists( 'color', $instance ) ? esc_attr( $instance['color'] ) : $this->default_setting_values['color'];
-    $new_instance['link-color'] = array_key_exists( 'link-color', $instance ) ? esc_attr( $instance['link-color'] ) : $this->default_setting_values['link-color'];
+    $new_instance['title'] = $this->blipper_widget_get_display_value( 'title', $instance );
+    $new_instance['display-date'] = $this->blipper_widget_get_display_value( 'display-date', $instance );
+    $new_instance['display-journal-title'] = $this->blipper_widget_get_display_value( 'display-journal-title', $instance );
+    $new_instance['add-link-to-blip'] = $this->blipper_widget_get_display_value( 'add-link-to-blip', $instance );
+    $new_instance['powered-by'] = $this->blipper_widget_get_display_value( 'powered-by', $instance );
+    $new_instance['border-style'] = $this->blipper_widget_get_display_value( 'border-style', $instance );
+    $new_instance['border-width'] = $this->blipper_widget_get_display_value( 'border-width', $instance );
+    $new_instance['border-color'] = $this->blipper_widget_get_display_value( 'border-color', $instance );
+    $new_instance['background-color'] = $this->blipper_widget_get_display_value( 'background-color', $instance );
+    $new_instance['color'] = $this->blipper_widget_get_display_value( 'color', $instance );
+    $new_instance['link-color'] = $this->blipper_widget_get_display_value( 'link-color', $instance );
+    $new_instance['padding'] = $this->blipper_widget_get_display_value( 'padding', $instance );
 
     return $new_instance;
+
+  }
+
+  private function blipper_widget_get_display_value( $setting, $instance ) {
+
+    return array_key_exists( $setting, $instance ) ? esc_attr( $instance[$setting] ) : $this->default_setting_values[$setting];
 
   }
 
@@ -705,7 +707,7 @@ class Blipper_Widget extends WP_Widget {
         . $this->blipper_widget_get_style( $instance, 'border-width')
         . $this->blipper_widget_get_style( $instance, 'border-color') 
         . $this->blipper_widget_get_style( $instance, 'background-color' )
-        // . 'padding:3px;'
+        . $this->blipper_widget_get_style( $instance, 'padding' )
         . '">';
 
       // Link back to the blip on the Polaroid|Blipfoto site.
@@ -819,7 +821,7 @@ class Blipper_Widget extends WP_Widget {
 
       <p>
         <input
-          class="fatwide"
+          class="widefat"
           id="<?php echo $this->get_field_id( 'display-date' ); ?>"
           name="<?php echo $this->get_field_name( 'display-date' ); ?>"
           type="checkbox"
@@ -834,7 +836,7 @@ class Blipper_Widget extends WP_Widget {
 
       <p>
         <input
-          class="fatwide"
+          class="widefat"
           id="<?php echo $this->get_field_id( 'add-link-to-blip' ); ?>"
           name="<?php echo $this->get_field_name( 'add-link-to-blip' ); ?>"
           type="checkbox"
@@ -849,7 +851,7 @@ class Blipper_Widget extends WP_Widget {
 
       <p>
         <input
-          class="fatwide"
+          class="widefat"
           id="<?php echo $this->get_field_id( 'display-journal-title' ); ?>"
           name="<?php echo $this->get_field_name( 'display-journal-title' ); ?>"
           type="checkbox"
@@ -864,7 +866,7 @@ class Blipper_Widget extends WP_Widget {
 
       <p>
         <input
-          class="fatwide"
+          class="widefat"
           id="<?php echo $this->get_field_id( 'powered-by' ); ?>"
           name="<?php echo $this->get_field_name( 'powered-by' ); ?>"
           type="checkbox"
@@ -912,7 +914,7 @@ class Blipper_Widget extends WP_Widget {
         >
           <option value="inherit" <?php selected( 'inherit', esc_attr( $instance['border-width'] ) ); ?>>default</option>
           <option value="0px" <?php selected( '0px', esc_attr( $instance['border-width'] ) ); ?>>0 pixels</option>
-          <option value="1px" <?php selected( '1px', esc_attr( $instance['border-width'] ) ); ?>>1 pixels</option>
+          <option value="1px" <?php selected( '1px', esc_attr( $instance['border-width'] ) ); ?>>1 pixel</option>
           <option value="2px" <?php selected( '2px', esc_attr( $instance['border-width'] ) ); ?>>2 pixels</option>
           <option value="3px" <?php selected( '3px', esc_attr( $instance['border-width'] ) ); ?>>3 pixels</option>
           <option value="4px" <?php selected( '4px', esc_attr( $instance['border-width'] ) ); ?>>4 pixels</option>
@@ -997,6 +999,24 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">
         Pick a colour for the widget link colour.  Clearing your colour choice will use the colour set by your theme.
       </p>
+      <p>
+        <label for="<?php echo $this->get_field_id( 'padding' ); ?>">
+          <?php _e( 'Padding (pixels)', 'blipper-widget' ); ?>
+        </label>
+        <input
+          class="widefat"
+          id="<?php echo $this->get_field_id( 'padding' ); ?>"
+          name="<?php echo $this->get_field_name( 'padding' ); ?>"
+          type="number"
+          min="0"
+          max="20"
+          step="0.5"
+          value="<?php echo $instance['padding'] ? esc_attr( $instance['padding'] ) : $this->default_setting_values['padding']; ?>"
+        >
+      </p>
+      <p class="description">
+        Pick a number of pixels between zero and twenty.  Changing the padding will increease the distance between the border and the edge of the image.  Bear in mind that the more padding you have, the smaller your image will appear.
+      </p>
       <?php
     }
 
@@ -1012,22 +1032,42 @@ class Blipper_Widget extends WP_Widget {
         ) 
       : error_log( "\tno key, no value; using default: " . $this->default_setting_values[$style_element] . "\n" );
 
-    $element = $style_element === 'link-color' ? 'color' : $style_element;
+    $element = $style_element;
+    $style = '';
 
-    return array_key_exists( $style_element, $instance ) 
-      ? ( empty( $instance[$style_element] ) 
-        ? $element . ':' . $this->default_setting_values[$style_element]
-        : $element . ':' . $instance[$style_element] . ';'
-        ) 
-      : $element . ':' . $this->default_setting_values[$style_element];
+    switch( $style_element ) {
+      case 'link-color':
+        $element = 'color';
+        return array_key_exists( $style_element, $instance ) 
+          ? ( empty( $instance[$style_element] ) 
+            ? $element . ':' . $this->default_setting_values[$style_element]
+            : $element . ':' . $instance[$style_element] . ';'
+            ) 
+          : $element . ':' . $this->default_setting_values[$style_element] . ';';
+      case 'padding':
+        return array_key_exists( $style_element, $instance ) 
+          ? ( empty( $instance[$style_element] ) 
+            ? $element . ':' . $this->default_setting_values[$style_element]
+            : $element . ':' . $instance[$style_element] . 'px' . ';'
+            ) 
+          : $element . ':' . $this->default_setting_values[$style_element] . 'px' . ';';
+
+      default:
+        return array_key_exists( $style_element, $instance ) 
+          ? ( empty( $instance[$style_element] ) 
+            ? $element . ':' . $this->default_setting_values[$style_element]
+            : $element . ':' . $instance[$style_element] . ';'
+            ) 
+          : $element . ':' . $this->default_setting_values[$style_element] . ';';
+    }
 
   }
 
 
   // --- Action hooks ------------------------------------------------------- //
 
-  // Check the Polaroid|Blipfoto OAuth settings have been set, otherwise display a
-  // message to the user.
+  // Check the Polaroid|Blipfoto OAuth settings have been set, otherwise display
+  // a message to the user.
   public function blipper_widget_settings_check() {
     $api = get_option('blipper-widget-settings-oauth');
     if ( !empty( $api ) ) {
