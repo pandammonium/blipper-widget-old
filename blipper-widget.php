@@ -47,13 +47,11 @@ use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_OAuthExcept
 use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_InvalidResponseException;
 use blipper_widget\blipper_widget_settings;
 
-// --- Action hooks --------------------------------------------------------- //
 
 // Register the WP Blipper widget
 function register_blipper_widget() {
   register_widget( 'Blipper_Widget' );
 }
-// function to load WP Blipper:
 add_action( 'widgets_init', 'register_blipper_widget' );
 
 // Add a link to the Blipper Widget Settings page from the installed plugins
@@ -66,27 +64,6 @@ function blipper_widget_add_settings_link( $links ) {
   return $links;
 }
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'blipper_widget_add_settings_link' );
-
-// Check the Polaroid|Blipfoto OAuth settings have been set, otherwise display a
-// message to the user.
-function blipper_widget_settings_check() {
-  $api = get_option('blipper-widget-settings-oauth');
-  if ( !empty( $api ) ) {
-    $apistring = implode( '', $api );
-  }
-  if ( empty( $apistring ) ) {
-    $optionslink = 'options-general.php?page=blipper-widget';
-    $msgString = __('Please update <a href="%1$s">your settings for Blipper Widget</a>.','blipper-widget');
-    echo "<html><body><div class='error'><p>" . sprintf( $msgString, $optionslink ) . "</p></div></body></html>";
-  }
-};
-// add_action( 'admin_notices', 'blipper_widget_settings_check' );
-
-function blipper_widget_load_colour_picker() {
-  wp_enqueue_style( 'wp-color-picker' );
-  wp_enqueue_script( 'wp-color-picker' );
-}
-add_action( 'load-widgets.php', 'blipper_widget_load_colour_picker');
 
 // Generic error handling
 function blipper_widget_exception( $e ) {
@@ -116,12 +93,10 @@ class Blipper_Widget extends WP_Widget {
     'powered-by'            => 'hide',
     'border-style'          => 'inherit',
     'border-width'          => 'inherit',
-    // Using 'inherit' for the default colour causes an error in the colour
-    // picker.  Leaving it blank has the same effect as using 'inherit'.
     'border-color'          => 'inherit',
     'background-color'      => 'inherit',
     'color'                 => 'inherit',
-
+    'link-color'            => 'initial',
   );
 
 /**
@@ -159,6 +134,11 @@ class Blipper_Widget extends WP_Widget {
     $this->settings = new blipper_widget_settings();
     $this->client = null;
 
+    // function to load WP Blipper:
+    // add_action( 'admin_notices', 'blipper_widget_settings_check' );
+    // add_action( 'load-widgets.php', array( $this, 'blipper_widget_load_colour_picker') );
+    add_action( 'admin_enqueue_scripts', array( $this, 'blipper_widget_enqueue_scripts' ) );
+    add_action( 'admin_footer-widgets.php', array( $this, 'blipper_widget_print_scripts' ), 9999 );
   }
 
 
@@ -226,6 +206,7 @@ class Blipper_Widget extends WP_Widget {
     $border_colour          = $this->blipper_widget_validate( $new_instance, $old_instance, 'border-color' );
     $background_colour      = $this->blipper_widget_validate( $new_instance, $old_instance, 'background-color' );
     $colour                 = $this->blipper_widget_validate( $new_instance, $old_instance, 'color' );
+    $link_colour            = $this->blipper_widget_validate( $new_instance, $old_instance, 'link-color' );
 
     $instance['title']                  = $title;
     $instance['display-date']           = $display_date;
@@ -237,6 +218,7 @@ class Blipper_Widget extends WP_Widget {
     $instance['border-color']           = $border_colour;
     $instance['background-color']       = $background_colour;
     $instance['color']                  = $colour;
+    $instance['link-color']             = $link_colour;
 
     return $instance;
 
@@ -257,7 +239,7 @@ class Blipper_Widget extends WP_Widget {
   */
   private function blipper_widget_validate( $new_instance, $old_instance, $setting_field ) {
 
-    error_log( "1 - Blipper_Widget::blipper_widget_validate( $setting_field )" );
+    error_log( "Blipper_Widget::blipper_widget_validate( $setting_field )" );
     error_log( "\tCurrent value:   " . ( array_key_exists( $setting_field, $old_instance ) ? $old_instance[$setting_field] : "undefined" ) );
     error_log( "\tProposed value:  " . ( array_key_exists( $setting_field, $new_instance ) ? $new_instance[$setting_field] : "undefined" ) );
 
@@ -291,16 +273,19 @@ class Blipper_Widget extends WP_Widget {
       case 'display-journal-title':
       case 'add-link-to-blip':
       case 'powered-by':
-        $instance = array_key_exists( $setting_field, $new_instance ) ? ( $new_instance[$setting_field] ? 'show' : 'hide' ) : 'hide';
+        $instance = array_key_exists( $setting_field, $new_instance ) ? ( ! empty( $new_instance[$setting_field] ) ? 'show' : 'hide' ) : 'hide';
       break;
       case 'border-style':
       case 'border-width':
-      case 'border-color':
-      case 'background-color':
-      case 'color':
         if ( array_key_exists( $setting_field, $new_instance ) ) {
           $instance = $new_instance[$setting_field];
         }
+      break;
+      case 'border-color':
+      case 'background-color':
+      case 'color':
+      case 'link-color':
+        $instance = array_key_exists( $setting_field, $new_instance ) ? ( !empty( $new_instance[$setting_field] ) ? $new_instance[$setting_field] : $this->default_setting_values[$setting_field] ) : $this->default_setting_values[$setting_field];
       break;
       default:
         $instance = null;
@@ -333,6 +318,7 @@ class Blipper_Widget extends WP_Widget {
     $new_instance['border-color'] = array_key_exists( 'border-color', $instance ) ? esc_attr( $instance['border-color'] ) : $this->default_setting_values['border-color'];
     $new_instance['background-color'] = array_key_exists( 'background-color', $instance ) ? esc_attr( $instance['background-color'] ) : $this->default_setting_values['background-color'];
     $new_instance['color'] = array_key_exists( 'color', $instance ) ? esc_attr( $instance['color'] ) : $this->default_setting_values['color'];
+    $new_instance['link-color'] = array_key_exists( 'link-color', $instance ) ? esc_attr( $instance['link-color'] ) : $this->default_setting_values['link-color'];
 
     return $new_instance;
 
@@ -719,7 +705,6 @@ class Blipper_Widget extends WP_Widget {
         . $this->blipper_widget_get_style( $instance, 'border-width')
         . $this->blipper_widget_get_style( $instance, 'border-color') 
         . $this->blipper_widget_get_style( $instance, 'background-color' )
-        . $this->blipper_widget_get_style( $instance, 'color' )
         // . 'padding:3px;'
         . '">';
 
@@ -753,11 +738,25 @@ class Blipper_Widget extends WP_Widget {
 
       // Journal title and/or powered-by link.
       if ( $instance['display-journal-title'] == 'show' && $instance['powered-by'] == 'show' ) {
-        echo '<footer><p style="font-size:75%;">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow" style="' . $this->blipper_widget_get_style( $instance, 'color' ) . '">' . $user_settings->data( 'journal_title' ) . '</a> | Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow" style="' . $this->blipper_widget_get_style( $instance, 'color' ) . '">Polaroid|Blipfoto</a></p></footer>';
+        echo '<footer><p style="font-size:75%;">From <a href="https://www.polaroidblipfoto.com/' 
+          . $user_settings->data( 'username' ) 
+          . '" rel="nofollow" style="' 
+          . $this->blipper_widget_get_style( $instance, 'link-color' ) 
+          . '">' . $user_settings->data( 'journal_title' ) 
+          . '</a> | Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow" style="' 
+          . $this->blipper_widget_get_style( $instance, 'link-color' ) 
+          . '">Polaroid|Blipfoto</a></p></footer>';
       } else if ( $instance['display-journal-title'] == 'show' && $instance['powered-by'] == 'hide' ) {
-        echo '<footer><p style="font-size:75%">From <a href="https://www.polaroidblipfoto.com/' . $user_settings->data( 'username' ) . '" rel="nofollow" style="' . $this->blipper_widget_get_style( $instance, 'color' ) . '">' . $user_settings->data( 'journal_title' ) . '</a></p></footer>';
+        echo '<footer><p style="font-size:75%">From <a href="https://www.polaroidblipfoto.com/' 
+          . $user_settings->data( 'username' ) 
+          . '" rel="nofollow" style="' 
+          . $this->blipper_widget_get_style( $instance, 'link-color' ) 
+          . '">' . $user_settings->data( 'journal_title' ) 
+          . '</a></p></footer>';
       } else if ( $instance['display-journal-title'] == 'hide' && $instance['powered-by'] == 'show' ) {
-        echo '<footer><p style="font-size:75%">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow" style="' . $this->blipper_widget_get_style( $instance, 'color' ) . '">Polaroid|Blipfoto</a></p></footer>';
+        echo '<footer><p style="font-size:75%">Powered by <a href="https://www.polaroidblipfoto.com/" rel="nofollow" style="' 
+          . $this->blipper_widget_get_style( $instance, 'link-color' ) 
+          . '">Polaroid|Blipfoto</a></p></footer>';
       }
 
       echo '</figcaption></figure>';
@@ -910,11 +909,7 @@ class Blipper_Widget extends WP_Widget {
         </select>
       </p>
       <p class="description">The border width is in pixels.  The default is to use your theme's style.  The border won't show if the width is zero.</p>
-      <script type='text/javascript'>
-          jQuery(document).ready(function($) {
-            $('.blipper-widget-colour-picker').wpColorPicker();
-          });
-      </script>
+
       <p>
         <label for="<?php echo $this->get_field_id( 'border-color' ); ?>">
           <?php _e( 'Border colour', 'blipper-widget' ); ?>
@@ -924,7 +919,7 @@ class Blipper_Widget extends WP_Widget {
           id="<?php echo $this->get_field_id( 'border-color' ); ?>"
           name="<?php echo $this->get_field_name( 'border-color' ); ?>"
           type="text"
-          value="<?php echo esc_attr( $instance['border-color'] ); ?>"
+          value="<?php echo ( $instance['border-color'] ? esc_attr( $instance['border-color'] ) : 'default' ); ?>"
           placeholder="#"
           data-default-color="<?php //echo $this->default_setting_values['border-color'] ?>"
         >
@@ -932,11 +927,7 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">
         Pick a colour for the widget border colour.  Clearing your colour choice will use the colour set by your theme.
       </p>
-      <script type='text/javascript'>
-          jQuery(document).ready(function($) {
-            $('.blipper-widget-colour-picker').wpColorPicker();
-          });
-      </script>
+
       <p>
         <label for="<?php echo $this->get_field_id( 'background-color' ); ?>">
           <?php _e( 'Background colour', 'blipper-widget' ); ?>
@@ -946,7 +937,7 @@ class Blipper_Widget extends WP_Widget {
           id="<?php echo $this->get_field_id( 'background-color' ); ?>"
           name="<?php echo $this->get_field_name( 'background-color' ); ?>"
           type="text"
-          value="<?php echo esc_attr( $instance['background-color'] ); ?>"
+          value="<?php echo $instance['background-color'] ? esc_attr( $instance['background-color'] ) : 'default'; ?>"
           placeholder="#"
           data-default-color="<?php //echo $this->default_setting_values['background-color'] ?>"
         >
@@ -954,11 +945,7 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">
         Pick a colour for the widget background colour.  Clearing your colour choice will use the colour set by your theme.
       </p>
-      <script type='text/javascript'>
-          jQuery(document).ready(function($) {
-            $('.blipper-widget-colour-picker').wpColorPicker();
-          });
-      </script>
+
       <p>
         <label for="<?php echo $this->get_field_id( 'color' ); ?>">
           <?php _e( 'Text colour', 'blipper-widget' ); ?>
@@ -968,13 +955,31 @@ class Blipper_Widget extends WP_Widget {
           id="<?php echo $this->get_field_id( 'color' ); ?>"
           name="<?php echo $this->get_field_name( 'color' ); ?>"
           type="text"
-          value="<?php echo esc_attr( $instance['color'] ); ?>"
+          value="<?php echo $instance['color'] ? esc_attr( $instance['color'] ) : 'default'; ?>"
           placeholder="#"
           data-default-color="<?php //echo $this->default_setting_values['color'] ?>"
         >
       </p>
       <p class="description">
-        Pick a colour for the widget text colour.  Clearing your colour choice will use the colour set by your theme.  The link text will always be the same colour as the surrounding text.
+        Pick a colour for the widget text colour.  Clearing your colour choice will use the colour set by your theme.
+      </p>
+
+      <p>
+        <label for="<?php echo $this->get_field_id( 'link-color' ); ?>">
+          <?php _e( 'Link colour', 'blipper-widget' ); ?>
+        </label><br>
+        <input
+          class="blipper-widget-colour-picker"
+          id="<?php echo $this->get_field_id( 'link-color' ); ?>"
+          name="<?php echo $this->get_field_name( 'link-color' ); ?>"
+          type="text"
+          value="<?php echo $instance['link-color'] ? esc_attr( $instance['link-color'] ) : 'default'; ?>"
+          placeholder="#"
+          data-default-color="<?php //echo $this->default_setting_values['link-color'] ?>"
+        >
+      </p>
+      <p class="description">
+        Pick a colour for the widget link colour.  Clearing your colour choice will use the colour set by your theme.
       </p>
       <?php
     }
@@ -983,22 +988,87 @@ class Blipper_Widget extends WP_Widget {
 
   private function blipper_widget_get_style( $instance, $style_element ) {
 
-    error_log( "Blipper_Widget::blipper_widget_get_style( $style_element ):\t" . ( 
+    error_log( "Blipper_Widget::blipper_widget_get_style( $style_element )" );
       array_key_exists( $style_element, $instance ) 
       ? ( empty( $instance[$style_element] ) 
-        ? 'key exists but has no value; using default value: ' . $this->default_setting_values[$style_element]
-        : 'value: ' . $instance[$style_element]
+        ? error_log( "\tkey has no value; using default: " . $this->default_setting_values[$style_element] . "\n" )
+        : error_log( "\tvalue: $instance[$style_element]" . "\n" )
         ) 
-      : 'key doesn\'t exist; using default value: ' . $this->default_setting_values[$style_element] )
-    );
+      : error_log( "\tno key, no value; using default: " . $this->default_setting_values[$style_element] . "\n" );
+
+    $element = $style_element === 'link-color' ? 'color' : $style_element;
 
     return array_key_exists( $style_element, $instance ) 
       ? ( empty( $instance[$style_element] ) 
-        ? $style_element . ':' . $this->default_setting_values[$style_element]
-        : $style_element . ':' . $instance[$style_element] . ';'
+        ? $element . ':' . $this->default_setting_values[$style_element]
+        : $element . ':' . $instance[$style_element] . ';'
         ) 
-      : $style_element . ':' . $this->default_setting_values[$style_element];
+      : $element . ':' . $this->default_setting_values[$style_element];
 
+  }
+
+
+  // --- Action hooks ------------------------------------------------------- //
+
+  // Check the Polaroid|Blipfoto OAuth settings have been set, otherwise display a
+  // message to the user.
+  public function blipper_widget_settings_check() {
+    $api = get_option('blipper-widget-settings-oauth');
+    if ( !empty( $api ) ) {
+      $apistring = implode( '', $api );
+    }
+    if ( empty( $apistring ) ) {
+      $optionslink = 'options-general.php?page=blipper-widget';
+      $msgString = __('Please update <a href="%1$s">your settings for Blipper Widget</a>.','blipper-widget');
+      echo "<html><body><div class='error'><p>" . sprintf( $msgString, $optionslink ) . "</p></div></body></html>";
+    }
+  }
+
+  // Add the WP colour picker
+  public function blipper_widget_load_colour_picker() {
+    error_log( "Blipper_Widget::blipper_widget_load_colour_picker()" );
+  }
+
+  public function blipper_widget_enqueue_scripts( $hook_suffix ) {
+    error_log( "Blipper_Widget::blipper_widget_enqueue()" );
+    error_log( "\tHook suffix: $hook_suffix\n" );
+    if ( 'widgets.php' === $hook_suffix ) {
+      wp_enqueue_style( 'wp-color-picker' );
+      wp_enqueue_script( 'wp-color-picker' );
+    }
+  }
+
+  /**
+   * Print scripts.
+   *
+   * @since 1.0
+   */
+  public function blipper_widget_print_scripts() {
+    ?>
+    <script>
+      ( function( $ ){
+        function initColourPicker( widget ) {
+          widget.find( '.blipper-widget-colour-picker' ).wpColorPicker( {
+            change: _.throttle( function() { // For Customiser
+              $(this).trigger( 'change' );
+            }, 3000 )
+          });
+        }
+
+        function onFormUpdate( event, widget ) {
+          initColourPicker( widget );
+        }
+
+        $( document ).on( 'widget-added widget-updated', onFormUpdate );
+
+        $( document ).ready( function() {
+          $( '#widgets-right .widget:has(.blipper-widget-colour-picker)' ).each( function () {
+            initColourPicker( $( this ) );
+          } );
+        } );
+      }( jQuery ) );
+      </script>
+    <?php
   }
 
 }
