@@ -677,13 +677,13 @@ class Blipper_Widget extends WP_Widget {
       $image_url = null;
       try {
 
-        if ( ! empty( $details->data( 'image_urls.original' ) ) ) {
+        if ( $details->data( 'image_urls.original' ) ) {
           $image_url = $details->data( 'image_urls.original' );
-        } else if ( ! empty( $details->data( 'image_urls.hires' ) ) ) {
+        } else if ( $details->data( 'image_urls.hires' ) ) {
           $image_url = $details->data( 'image_urls.hires' );
-        } else if ( ! empty( $details->data( 'image_urls.stdres' ) ) ) {
+        } else if ( $details->data( 'image_urls.stdres' ) ) {
           $image_url = $details->data( 'image_urls.stdres' );
-        } else if ( ! empty( $details->data( 'image_urls.lores' ) ) ) {
+        } else if ( $details->data( 'image_urls.lores' ) ) {
           $image_url = $details->data( 'image_urls.lores' );
         } else {
           throw new ErrorException('Unable to get URL of image.');
