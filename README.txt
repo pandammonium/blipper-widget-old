@@ -142,6 +142,7 @@ The widget settings are currently:
 * Include link to your latest blip: to link the displayed blip back to the corresponding entry on Polaroid|Blipfoto, tick the box.  The link has a rel="nofollow" attribute.  This option is unticked by default.
 * Display journal title and link: to include a link back to your Polaroid|Blipfoto journal, tick the box. For my journal, the link will appear as 'From Panda’s Pics'.  The link has a rel="nofollow" attribute.  This option is unticked by default.
 * Include a ‘powered by’ link: to include a 'Powered by Polaroid|Blipfoto' link to be displayed, tick the box.  The link has a rel="nofollow" attribute.  This option is unticked by default.
+* Styles: the border, colours and padding can be customised.
 
 == Screenshots ==
 
@@ -150,6 +151,10 @@ The widget settings are currently:
 3. An example of the widget in use on [pandammonium.org](http://pandammonium.org/), showing a link to my Polaroid|Blipfoto journal and a powered-by link.
 
 == Changelog ==
+
+= 0.0.6 =
+
+* Added link colour and padding to styling properties of the widget.
 
 = 0.0.5 =
 

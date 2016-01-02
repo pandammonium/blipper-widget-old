@@ -804,6 +804,8 @@ class Blipper_Widget extends WP_Widget {
   */
   private function blipper_widget_display_form( $instance ) {
 
+    error_log( "Blipper_Widget::blipper_widget_display_form\nproperty " . var_export( $instance, true ) );
+
     $oauth_settings = $this->settings->blipper_widget_get_settings();
 
     if ( empty( $oauth_settings['username'] ) ||
@@ -1011,6 +1013,7 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">
         Pick a colour for the widget link colour.  Clearing your colour choice will use the colour set by your theme.
       </p>
+
       <p>
         <label for="<?php echo $this->get_field_id( 'padding' ); ?>">
           <?php _e( 'Padding (pixels)', 'blipper-widget' ); ?>
@@ -1029,6 +1032,7 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">
         Pick a number of pixels between zero and twenty.  Changing the padding will increase the distance between the border and the edge of the image.  Bear in mind that the more padding you have, the smaller your image will appear.
       </p>
+
       <?php
     }
 
