@@ -48,14 +48,22 @@ use blipper_widget_Blipfoto\blipper_widget_Exceptions\blipper_widget_InvalidResp
 use blipper_widget\blipper_widget_settings;
 
 
-// Register the WP Blipper widget
+/**
+  * Register the WP Blipper widget
+  *
+  * @since 0.0.1
+  */
 function register_blipper_widget() {
   register_widget( 'Blipper_Widget' );
 }
 add_action( 'widgets_init', 'register_blipper_widget' );
 
-// Add a link to the Blipper Widget Settings page from the installed plugins
-// list.
+/**
+  * Add a link to the Blipper Widget Settings page from the installed plugins
+  * list.
+  *
+  * @since 0.0.1
+  */
 function blipper_widget_add_settings_link( $links ) {
   $links[] = '<a href="' .
     esc_url( admin_url( 'options-general.php?page=blipper-widget' ) ) .
@@ -65,7 +73,11 @@ function blipper_widget_add_settings_link( $links ) {
 }
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'blipper_widget_add_settings_link' );
 
-// Generic error handling
+/**
+  * Generic error handling
+  *
+  * @since 0.0.1
+  */
 function blipper_widget_exception( $e ) {
   echo '<p>An unexpected error has occurred.  ' . $e->getMessage() . '  Sorry about that.  Please check your settings or try again later.</p>';
 }
@@ -933,7 +945,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Border colour', 'blipper-widget' ); ?>
         </label><br>
         <input
-          class="blipper-widget-colour-picker"
+          class="blipper-widget-colour-picker widefat"
           id="<?php echo $this->get_field_id( 'border-color' ); ?>"
           name="<?php echo $this->get_field_name( 'border-color' ); ?>"
           type="text"
@@ -951,7 +963,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Background colour', 'blipper-widget' ); ?>
         </label><br>
         <input
-          class="blipper-widget-colour-picker"
+          class="blipper-widget-colour-picker widefat"
           id="<?php echo $this->get_field_id( 'background-color' ); ?>"
           name="<?php echo $this->get_field_name( 'background-color' ); ?>"
           type="text"
@@ -969,7 +981,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Text colour', 'blipper-widget' ); ?>
         </label><br>
         <input
-          class="blipper-widget-colour-picker"
+          class="blipper-widget-colour-picker widefat"
           id="<?php echo $this->get_field_id( 'color' ); ?>"
           name="<?php echo $this->get_field_name( 'color' ); ?>"
           type="text"
@@ -987,7 +999,7 @@ class Blipper_Widget extends WP_Widget {
           <?php _e( 'Link colour', 'blipper-widget' ); ?>
         </label><br>
         <input
-          class="blipper-widget-colour-picker"
+          class="blipper-widget-colour-picker widefat"
           id="<?php echo $this->get_field_id( 'link-color' ); ?>"
           name="<?php echo $this->get_field_name( 'link-color' ); ?>"
           type="text"
@@ -1015,7 +1027,7 @@ class Blipper_Widget extends WP_Widget {
         >
       </p>
       <p class="description">
-        Pick a number of pixels between zero and twenty.  Changing the padding will increease the distance between the border and the edge of the image.  Bear in mind that the more padding you have, the smaller your image will appear.
+        Pick a number of pixels between zero and twenty.  Changing the padding will increase the distance between the border and the edge of the image.  Bear in mind that the more padding you have, the smaller your image will appear.
       </p>
       <?php
     }
@@ -1024,13 +1036,14 @@ class Blipper_Widget extends WP_Widget {
 
   private function blipper_widget_get_style( $instance, $style_element ) {
 
-    error_log( "Blipper_Widget::blipper_widget_get_style( $style_element )" );
+    $message =
       array_key_exists( $style_element, $instance ) 
       ? ( empty( $instance[$style_element] ) 
-        ? error_log( "\tkey has no value; using default: " . $this->default_setting_values[$style_element] . "\n" )
-        : error_log( "\tvalue: $instance[$style_element]" . "\n" )
+        ? ( "\tno value; using default: " . $this->default_setting_values[$style_element] )
+        : ( "\tvalue: $instance[$style_element]" )
         ) 
-      : error_log( "\tno key, no value; using default: " . $this->default_setting_values[$style_element] . "\n" );
+      : ( "\tno key, no value; using default: " . $this->default_setting_values[$style_element] );
+    error_log( "Blipper_Widget::blipper_widget_get_style( $style_element )" . $message );
 
     $element = $style_element;
     $style = '';
@@ -1086,18 +1099,19 @@ class Blipper_Widget extends WP_Widget {
   }
 
   public function blipper_widget_enqueue_scripts( $hook_suffix ) {
-    error_log( "Blipper_Widget::blipper_widget_enqueue()" );
-    error_log( "\tHook suffix: $hook_suffix\n" );
+    error_log( "Blipper_Widget::blipper_widget_enqueue()\tHook suffix: $hook_suffix" );
     if ( 'widgets.php' === $hook_suffix ) {
       wp_enqueue_style( 'wp-color-picker' );
       wp_enqueue_script( 'wp-color-picker' );
+      // Javascript Underscore library:
+      wp_enqueue_script( 'wp-util' );
     }
   }
 
   /**
    * Print scripts.
    *
-   * @since 1.0
+   * @since 0.0.5
    */
   public function blipper_widget_print_scripts() {
     ?>
