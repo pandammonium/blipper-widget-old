@@ -713,12 +713,14 @@ class Blipper_Widget extends WP_Widget {
         . $this->blipper_widget_get_style( $instance, 'padding' )
         . '">';
 
-      // Link back to the blip on the Blipfoto site.
+      // Link back to the blip on the Blipfoto site, if set.
       if ( ! array_key_exists( 'add-link-to-blip' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['add-link-to-blip'] = $this->default_setting_values['add-link-to-blip'];
+        error_log( "\tCurrent value:\tdoesn't exist" );
+        error_log( "\tNew value:\t" . $this->default_setting_values['add-link-to-blip'] );
       }
-      if ( $instance['add-link-to-blip'] ) {
+      if ( $instance['add-link-to-blip'] == 'show' ) {
         echo '<a href="https://www.blipfoto.com/entry/' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
       // Add the image.
@@ -729,7 +731,7 @@ class Blipper_Widget extends WP_Widget {
         width="auto">
       ';
       // Close the link (anchor) tag.
-      if ( $instance['add-link-to-blip'] ) {
+      if ( $instance['add-link-to-blip'] == 'show' ) {
         echo '</a>';
       }
 
@@ -1018,24 +1020,6 @@ class Blipper_Widget extends WP_Widget {
           value="<?php echo esc_attr( $instance['link-color'] ); ?>"
           placeholder="#"
           data-default-color="<?php //echo $this->default_setting_values['link-color']; ?>"
-        >
-      </p>
-      <p class="description">
-        Pick a colour for the widget link colour.  Clearing your colour choice will use the colour set by your theme.
-      </p>
-
-      <p>
-        <label for="<?php echo $this->get_field_id( 'link-color' ); ?>">
-          <?php _e( 'Link colour', 'blipper-widget' ); ?>
-        </label><br>
-        <input
-          class="blipper-widget-colour-picker"
-          id="<?php echo $this->get_field_id( 'link-color' ); ?>"
-          name="<?php echo $this->get_field_name( 'link-color' ); ?>"
-          type="text"
-          value="<?php echo $instance['link-color'] ? esc_attr( $instance['link-color'] ) : 'default'; ?>"
-          placeholder="#"
-          data-default-color="<?php //echo $this->default_setting_values['link-color'] ?>"
         >
       </p>
       <p class="description">
