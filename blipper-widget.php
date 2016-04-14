@@ -10,7 +10,7 @@
   * Plugin Name:        Blipper Widget
   * Plugin URI:         http://pandammonium.org/wordpress-dev/blipper-widget/
   * Description:        Display your latest blip in a widget.  Requires a Blipfoto account.
-  * Version:            0.0.5
+  * Version:            0.0.6
   * Author:             Caity Ross
   * Author URI:         http://pandammonium.org/
   * License:            GPL-2.0+
@@ -713,14 +713,12 @@ class Blipper_Widget extends WP_Widget {
         . $this->blipper_widget_get_style( $instance, 'padding' )
         . '">';
 
-      // Link back to the blip on the Blipfoto site, if set.
+      // Link back to the blip on the Blipfoto site.
       if ( ! array_key_exists( 'add-link-to-blip' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['add-link-to-blip'] = $this->default_setting_values['add-link-to-blip'];
-        error_log( "\tCurrent value:\tdoesn't exist" );
-        error_log( "\tNew value:\t" . $this->default_setting_values['add-link-to-blip'] );
       }
-      if ( $instance['add-link-to-blip'] == 'show' ) {
+      if ( $instance['add-link-to-blip'] ) {
         echo '<a href="https://www.blipfoto.com/entry/' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
       // Add the image.
@@ -731,7 +729,7 @@ class Blipper_Widget extends WP_Widget {
         width="auto">
       ';
       // Close the link (anchor) tag.
-      if ( $instance['add-link-to-blip'] == 'show' ) {
+      if ( $instance['add-link-to-blip'] ) {
         echo '</a>';
       }
 
