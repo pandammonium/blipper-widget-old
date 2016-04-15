@@ -10,7 +10,7 @@
   * Plugin Name:        Blipper Widget
   * Plugin URI:         http://pandammonium.org/wordpress-dev/blipper-widget/
   * Description:        Display your latest blip in a widget.  Requires a Blipfoto account.
-  * Version:            0.0.6
+  * Version:            0.0.7
   * Author:             Caity Ross
   * Author URI:         http://pandammonium.org/
   * License:            GPL-2.0+
@@ -103,7 +103,7 @@ class Blipper_Widget extends WP_Widget {
     'display-date'          => 'show',
     'display-journal-title' => 'hide',
     'add-link-to-blip'      => 'hide',
-    'powered-by'            => 'hide',
+    'display-powered-by'    => 'hide',
     'border-style'          => 'inherit',
     'border-width'          => 'inherit',
     // Using 'inherit' for the default colour causes an error in the colour
@@ -216,7 +216,7 @@ class Blipper_Widget extends WP_Widget {
     $display_date           = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-date' );
     $display_journal_title  = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-journal-title' );
     $add_link_to_blip       = $this->blipper_widget_validate( $new_instance, $old_instance, 'add-link-to-blip' );
-    $powered_by             = $this->blipper_widget_validate( $new_instance, $old_instance, 'powered-by' );
+    $powered_by             = $this->blipper_widget_validate( $new_instance, $old_instance, 'display-powered-by' );
     $border_style           = $this->blipper_widget_validate( $new_instance, $old_instance, 'border-style' );
     $border_width           = $this->blipper_widget_validate( $new_instance, $old_instance, 'border-width' );
     $border_colour          = $this->blipper_widget_validate( $new_instance, $old_instance, 'border-color' );
@@ -229,7 +229,7 @@ class Blipper_Widget extends WP_Widget {
     $instance['display-date']           = $display_date;
     $instance['display-journal-title']  = $display_journal_title;
     $instance['add-link-to-blip']       = $add_link_to_blip;
-    $instance['powered-by']             = $powered_by;
+    $instance['display-powered-by']             = $powered_by;
     $instance['border-style']           = $border_style;
     $instance['border-width']           = $border_width;
     $instance['border-color']           = $border_colour;
@@ -290,7 +290,7 @@ class Blipper_Widget extends WP_Widget {
       case 'display-date':
       case 'display-journal-title':
       case 'add-link-to-blip':
-      case 'powered-by':
+      case 'display-powered-by':
         $instance = array_key_exists( $setting_field, $new_instance ) ? ( ! empty( $new_instance[$setting_field] ) ? 'show' : 'hide' ) : 'hide';
       break;
       default:
@@ -322,7 +322,7 @@ class Blipper_Widget extends WP_Widget {
     $new_instance['display-date'] = $this->blipper_widget_get_display_value( 'display-date', $instance );
     $new_instance['display-journal-title'] = $this->blipper_widget_get_display_value( 'display-journal-title', $instance );
     $new_instance['add-link-to-blip'] = $this->blipper_widget_get_display_value( 'add-link-to-blip', $instance );
-    $new_instance['powered-by'] = $this->blipper_widget_get_display_value( 'powered-by', $instance );
+    $new_instance['display-powered-by'] = $this->blipper_widget_get_display_value( 'display-powered-by', $instance );
     $new_instance['border-style'] = $this->blipper_widget_get_display_value( 'border-style', $instance );
     $new_instance['border-width'] = $this->blipper_widget_get_display_value( 'border-width', $instance );
     $new_instance['border-color'] = $this->blipper_widget_get_display_value( 'border-color', $instance );
@@ -763,18 +763,18 @@ class Blipper_Widget extends WP_Widget {
       }
       echo $blip['title'];
 
-      // Journal title and/or powered-by link.
+      // Journal title and/or display-powered-by link.
       $this->blipper_widget_log_display_values( $instance, 'display-journal-title', 'blipper_widget_display_blip' );
-      $this->blipper_widget_log_display_values( $instance, 'powered-by', 'blipper_widget_display_blip' );
+      $this->blipper_widget_log_display_values( $instance, 'display-powered-by', 'blipper_widget_display_blip' );
       if ( ! array_key_exists( 'display-journal-title' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['display-journal-title'] = $this->default_setting_values['display-journal-title'];
       }
-      if ( ! array_key_exists( 'powered-by' , $instance ) ) {
+      if ( ! array_key_exists( 'display-powered-by' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
-        $instance['powered-by'] = $this->default_setting_values['powered-by'];
+        $instance['display-powered-by'] = $this->default_setting_values['display-powered-by'];
       }
-      if ( $instance['display-journal-title'] == 'show' && $instance['powered-by'] == 'show' ) {
+      if ( $instance['display-journal-title'] == 'show' && $instance['display-powered-by'] == 'show' ) {
         echo '<footer><p style="font-size:75%;">From <a href="https://www.blipfoto.com/' 
           . $user_settings->data( 'username' ) 
           . '" rel="nofollow" style="' 
@@ -783,19 +783,19 @@ class Blipper_Widget extends WP_Widget {
           . '</a> | Powered by <a href="https://www.blipfoto.com/" rel="nofollow" style="' 
           . $this->blipper_widget_get_style( $instance, 'link-color' ) 
           . '">Blipfoto</a></p></footer>';
-      } else if ( $instance['display-journal-title'] == 'show' && $instance['powered-by'] == 'hide' ) {
+      } else if ( $instance['display-journal-title'] == 'show' && $instance['display-powered-by'] == 'hide' ) {
         echo '<footer><p style="font-size:75%">From <a href="https://www.blipfoto.com/' 
           . $user_settings->data( 'username' ) 
           . '" rel="nofollow" style="' 
           . $this->blipper_widget_get_style( $instance, 'link-color' ) 
           . '">' . $user_settings->data( 'journal_title' ) 
           . '</a></p></footer>';
-      } else if ( $instance['display-journal-title'] == 'hide' && $instance['powered-by'] == 'show' ) {
+      } else if ( $instance['display-journal-title'] == 'hide' && $instance['display-powered-by'] == 'show' ) {
         echo '<footer><p style="font-size:75%">Powered by <a href="https://www.blipfoto.com/" rel="nofollow" style="' 
           . $this->blipper_widget_get_style( $instance, 'link-color' ) 
           . '">Blipfoto</a></p></footer>';
       } else {
-        error_log( "Blipper_Widget::blipper_widget_display_blip( 'display-journal-title', 'powered-by' )\tnot displayed" );
+        error_log( "Blipper_Widget::blipper_widget_display_blip( 'display-journal-title', 'display-powered-by' )\tnot displayed" );
       }
 
       echo '</figcaption></figure>';
@@ -890,14 +890,14 @@ class Blipper_Widget extends WP_Widget {
       <p>
         <input
           class="widefat"
-          id="<?php echo $this->get_field_id( 'powered-by' ); ?>"
-          name="<?php echo $this->get_field_name( 'powered-by' ); ?>"
+          id="<?php echo $this->get_field_id( 'display-powered-by' ); ?>"
+          name="<?php echo $this->get_field_name( 'display-powered-by' ); ?>"
           type="checkbox"
           value="1"
-          <?php checked( 'show', esc_attr( $instance['powered-by'] ) ); ?>
+          <?php checked( 'show', esc_attr( $instance['display-powered-by'] ) ); ?>
         >
-        <label for="<?php echo $this->get_field_id( 'powered-by' ); ?>">
-          <?php _e( 'Include a \'powered by\' link', 'powered-by' ) ?>
+        <label for="<?php echo $this->get_field_id( 'display-powered-by' ); ?>">
+          <?php _e( 'Include a \'powered by\' link', 'display-powered-by' ) ?>
         </label>
       </p>
       <p class="description">Tick the box to include a 'powered by' link back to Blipfoto.  Leave it unticked if you don't want to include a 'powered by'-style link.  The box is unticked by default.</p>

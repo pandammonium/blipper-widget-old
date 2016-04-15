@@ -1,10 +1,10 @@
 === Blipper Widget ===
 Contributors: pandammonium
 Donate link: http://pandammonium.org/donate/
-Tags: photos,photo,blipfoto,widget,daily photo,photo display,image display,365 project
+Tags: photos,photo,blipfoto,widget,daily photo,photo display,image display,365 project,images,image
 Requires at least: 4.3
 Tested up to: 4.5
-Stable tag: 0.0.6
+Stable tag: 0.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,7 @@ You'll need your Blipfoto username and an OAuth access token from Blipfoto to us
 Your username is the username you use to sign in to Blipfoto.  Blipper Widget uses this information only to verify your account.  Blipper Widget does not have access to your Blipfoto password.
 
 To obtain the access token, follow the instructions below:
+
 1. Open [the Blipfoto apps page](https://www.blipfoto.com/developer/apps) in a new tab or window.
 1. Press the 'Create new app' button.
 1. In the 'Name' field, give your app any name you like, for example, 'My super-duper app'.
@@ -149,9 +150,13 @@ The widget settings are currently:
 
 1. The Blipper Widget settings page.
 2. The widget form settings.
-3. An example of the widget in use on [pandammonium.org](http://pandammonium.org/), showing a link to my Blipfoto journal and a powered-by link.
+3. An example of the widget in use.
 
 == Changelog ==
+
+= 0.0.7 =
+
+* Fixed: bug that added link from the image to the blip on Blipfoto whether it was set or not.
 
 = 0.0.6 =
 
@@ -189,11 +194,13 @@ The widget settings are currently:
 
 == Upgrade notice ==
 
+= 0.0.7 =
+
+Update now to fix a bug linking the image back to Blipfoto when not desired. 
+
 = 0.0.6 =
 
-Update now to ensure compatability with:
-* WordPress 4.5
-* the branding on the Blipfoto website.
+Update now to ensure compatability with WordPress 4.5 and the rebranding of the Blipfoto website.
 
 = 0.0.5 =
 
