@@ -726,11 +726,12 @@ class Blipper_Widget extends WP_Widget {
         . '">';
 
       // Link back to the blip on the Blipfoto site.
+      $this->blipper_widget_log_display_values( $instance, 'add-link-to-blip', 'blipper_widget_display_blip' );
       if ( ! array_key_exists( 'add-link-to-blip' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['add-link-to-blip'] = $this->default_setting_values['add-link-to-blip'];
       }
-      if ( $instance['add-link-to-blip'] ) {
+      if ( $instance['add-link-to-blip'] == 'show' ) {
         echo '<a href="https://www.blipfoto.com/entry/' . $blip['entry_id_str'] . '" rel="nofollow">';
       }
       // Add the image.
@@ -741,7 +742,7 @@ class Blipper_Widget extends WP_Widget {
         width="auto">
       ';
       // Close the link (anchor) tag.
-      if ( $instance['add-link-to-blip'] ) {
+      if ( $instance['add-link-to-blip'] == 'show' ) {
         echo '</a>';
       }
 
@@ -749,6 +750,7 @@ class Blipper_Widget extends WP_Widget {
       echo '<figcaption style="padding-top:7px;' . $this->blipper_widget_get_style( $instance, 'color' ) . '">';
 
       // Date (optional) and title
+      $this->blipper_widget_log_display_values( $instance, 'display-date', 'blipper_widget_display_blip' );
       if ( ! array_key_exists( 'display-date' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['display-date'] = $this->default_setting_values['display-date'];
@@ -762,6 +764,8 @@ class Blipper_Widget extends WP_Widget {
       echo $blip['title'];
 
       // Journal title and/or powered-by link.
+      $this->blipper_widget_log_display_values( $instance, 'display-journal-title', 'blipper_widget_display_blip' );
+      $this->blipper_widget_log_display_values( $instance, 'powered-by', 'blipper_widget_display_blip' );
       if ( ! array_key_exists( 'display-journal-title' , $instance ) ) {
         // Necessary for when Blipper Widget is added via the Customiser
         $instance['display-journal-title'] = $this->default_setting_values['display-journal-title'];
@@ -790,6 +794,8 @@ class Blipper_Widget extends WP_Widget {
         echo '<footer><p style="font-size:75%">Powered by <a href="https://www.blipfoto.com/" rel="nofollow" style="' 
           . $this->blipper_widget_get_style( $instance, 'link-color' ) 
           . '">Blipfoto</a></p></footer>';
+      } else {
+        error_log( "Blipper_Widget::blipper_widget_display_blip( 'display-journal-title', 'powered-by' )\tnot displayed" );
       }
 
       echo '</figcaption></figure>';
@@ -807,7 +813,7 @@ class Blipper_Widget extends WP_Widget {
   */
   private function blipper_widget_display_form( $instance ) {
 
-    error_log( "Blipper_Widget::blipper_widget_display_form\nproperty " . var_export( $instance, true ) );
+    error_log( "Blipper_Widget::blipper_widget_display_form\nproperty " . var_export( $instance, true ) . "\n" );
 
     $oauth_settings = $this->settings->blipper_widget_get_settings();
 
@@ -922,7 +928,7 @@ class Blipper_Widget extends WP_Widget {
       <p class="description">The default style uses your theme's style.  The border won't show if the style is set to 'no line'.</p>
       <p>
         <label for="<?php echo $this->get_field_id( 'border-width' ); ?>">
-          <?php _e( 'Border width (px)', 'blipper-widget' ); ?>
+          <?php _e( 'Border width', 'blipper-widget' ); ?>
         </label>
         <select
           class="widefat"
@@ -1064,14 +1070,7 @@ class Blipper_Widget extends WP_Widget {
 
   private function blipper_widget_get_style( $instance, $style_element ) {
 
-    $message =
-      array_key_exists( $style_element, $instance ) 
-      ? ( empty( $instance[$style_element] ) 
-        ? ( "\tkey has no value; using default: " . $this->default_setting_values[$style_element] )
-        : ( "\tvalue: $instance[$style_element]" )
-        ) 
-      : ( "\tno key, no value; using default: " . $this->default_setting_values[$style_element] );
-    error_log( "Blipper_Widget::blipper_widget_get_style( $style_element )" . $message );
+    $this->blipper_widget_log_display_values( $instance, $style_element, 'blipper_widget_get_style' );
 
     $element = $style_element;
     $style = '';
@@ -1104,6 +1103,17 @@ class Blipper_Widget extends WP_Widget {
 
   }
 
+  private function blipper_widget_log_display_values( $instance, $display_element, $function_name ) {
+      $message =
+        array_key_exists( $display_element, $instance ) 
+        ? ( empty( $instance[$display_element] ) 
+          ? ( "Key has no value; using default: " . $this->default_setting_values[$display_element] )
+          : ( "Value: " . $instance[$display_element] )
+          ) 
+        : ( "No key, no value; adding default: " . $this->default_setting_values['display-journal-title'] );
+      error_log( "Blipper_Widget::$function_name( $display_element )" );
+      error_log( "\t" . $message . "\n" );
+  }
 
   // --- Action hooks ------------------------------------------------------- //
 
